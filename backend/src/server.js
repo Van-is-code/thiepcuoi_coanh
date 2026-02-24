@@ -13,8 +13,8 @@ const app = express();
 const port = Number(process.env.PORT || 3000);
 const basePublicUrl = process.env.BASE_PUBLIC_URL || `http://localhost:${port}`;
 
-const staticRoot = path.resolve(__dirname, '../vobe2/www.ziuwedding.site');
-const cdnMirrorRoot = path.resolve(__dirname, '../vobe2/w.ladicdn.com');
+const staticRoot = path.resolve(__dirname, '../../vobe2/www.ziuwedding.site');
+const cdnMirrorRoot = path.resolve(__dirname, '../../vobe2/w.ladicdn.com');
 const backendRoot = path.resolve(__dirname, '../');
 
 // Setup email transporter
