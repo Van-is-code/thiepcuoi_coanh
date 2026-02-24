@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Danh Sách Khách Mời</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #faf7f2;
+  --cream2: #f3ede2;
+  --gold: #c9a96e;
+  --gold-light: #e8d5a3;
+  --gold-dark: #9a7a45;
+  --brown: #5c4033;
+  --text: #3a2a1e;
+  --text-muted: #a0907a;
+  --white: #ffffff;
+  --border: rgba(201,169,110,0.2);
+  --green: #6a9e7a;
+  --green-bg: rgba(106,158,122,0.1);
+}
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--cream);
+  min-height: 100vh;
+  color: var(--text);
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(201,169,110,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 100% 100%, rgba(201,169,110,0.06) 0%, transparent 60%);
+}
+
+/* ── TOP NAV ── */
+.topbar {
+  background: var(--text);
+  padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+}
+.topbar-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-style: italic; font-weight: 400;
+  color: var(--gold-light); letter-spacing: 1px;
+}
+.topbar-brand span { color: rgba(255,255,255,0.4); font-style: normal; margin: 0 8px; }
+.topbar-nav { display: flex; gap: 4px; }
+.nav-btn {
+  padding: 7px 16px;
+  background: none; border: 1px solid transparent;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Jost', sans-serif; font-size: 10px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; border-radius: 2px; transition: all 0.2s;
+  text-decoration: none; display: flex; align-items: center; gap: 6px;
+}
+.nav-btn:hover { color: var(--gold-light); border-color: rgba(201,169,110,0.3); }
+.nav-btn.active { color: var(--gold-light); border-color: rgba(201,169,110,0.5); background: rgba(201,169,110,0.08); }
+.nav-btn svg { width: 12px; height: 12px; }
+
+/* ── PAGE ── */
+.page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+
+/* ── HEADER ── */
+.page-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+}
+.page-title h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 300; color: var(--text); letter-spacing: 1px;
+}
+.page-title h1 em { font-style: italic; color: var(--gold-dark); }
+.page-title p { margin-top: 4px; font-size: 12px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+
+.header-actions { display: flex; gap: 10px; align-items: center; }
+
+.btn-add {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 20px;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: white; border: none; border-radius: 2px;
+  font-family: 'Jost', sans-serif; font-size: 10px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,169,110,0.35); }
+.btn-add svg { width: 13px; height: 13px; }
+
+/* ── STATS ── */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  border-radius: 2px;
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(to right, var(--gold-light), var(--gold));
+}
+.stat-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 400; color: var(--text); line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-muted); }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+}
+.search-box {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--white); border: 1px solid var(--border);
+  padding: 9px 14px; border-radius: 2px; flex: 1; max-width: 320px;
+  transition: border-color 0.2s;
+}
+.search-box:focus-within { border-color: var(--gold); }
+.search-box svg { width: 13px; height: 13px; color: #bbb; flex-shrink: 0; }
+.search-box input {
+  border: none; background: none; outline: none;
+  font-family: 'Jost', sans-serif; font-size: 13px; color: var(--text);
+  width: 100%;
+}
+.search-box input::placeholder { color: #ccc; }
+
+.toolbar-right { display: flex; gap: 8px; align-items: center; }
+.count-badge {
+  font-size: 11px; color: var(--text-muted); letter-spacing: 1px;
+  padding: 4px 10px; background: var(--cream2); border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ── TABLE ── */
+.table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(92,64,51,0.05);
+}
+
+.table-head {
+  display: grid;
+  grid-template-columns: 2.5fr 1.8fr 1fr 1fr 0.8fr;
+  background: var(--cream2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+}
+.th {
+  padding: 12px 10px;
+  font-size: 9px; font-weight: 600; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--text-muted);
+}
+
+/* Guest rows */
+.guest-row {
+  display: grid;
+  grid-template-columns: 2.5fr 1.8fr 1fr 1fr 0.8fr;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(201,169,110,0.1);
+  transition: background 0.15s;
+  animation: rowIn 0.3s ease both;
+}
+.guest-row:last-child { border-bottom: none; }
+.guest-row:hover { background: #fdfaf5; }
+
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.td { padding: 14px 10px; display: flex; align-items: center; font-size: 13px; }
+
+/* Name cell */
+.guest-name-cell { flex-direction: column; align-items: flex-start; gap: 2px; }
+.guest-name-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-style: italic; color: var(--text); font-weight: 400;
+}
+.guest-index { font-size: 9px; color: #ccc; letter-spacing: 1px; }
+
+/* Note cell */
+.note-pill {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px;
+  background: rgba(201,169,110,0.1);
+  border: 1px solid rgba(201,169,110,0.25);
+  border-radius: 20px;
+  font-size: 10px; color: var(--gold-dark); letter-spacing: 0.5px;
+  white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+}
+.note-empty { font-size: 11px; color: #ddd; font-style: italic; }
+
+/* URL cell */
+.url-cell { gap: 6px; justify-content: flex-start; }
+.url-copy {
+  background: none; border: 1px solid var(--border); padding: 5px 11px;
+  border-radius: 2px; font-size: 9px; color: var(--text-muted);
+  cursor: pointer; font-family: 'Jost', sans-serif; letter-spacing: 1px;
+  white-space: nowrap; transition: all 0.15s; display: flex; align-items: center; gap: 5px;
+}
+.url-copy:hover { border-color: var(--gold); color: var(--gold-dark); background: rgba(201,169,110,0.05); }
+.url-copy.done { border-color: var(--green); color: var(--green); }
+.url-copy svg { width: 11px; height: 11px; }
+
+/* Date cell */
+.date-val { font-size: 12px; color: var(--text-muted); flex-direction: column; align-items: flex-start; gap: 1px; }
+.date-val span { font-size: 10px; color: #ccc; }
+
+/* Action cell */
+.action-cell { gap: 6px; justify-content: flex-end; }
+
+.btn-invite-row {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 14px;
+  background: var(--text); color: white;
+  border: none; border-radius: 2px;
+  font-family: 'Jost', sans-serif; font-size: 9px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.btn-invite-row:hover { background: var(--brown); transform: translateY(-1px); }
+.btn-invite-row svg { width: 11px; height: 11px; }
+
+.btn-del {
+  padding: 7px 9px;
+  background: none; border: 1px solid rgba(201,169,110,0.2);
+  color: #ccc; border-radius: 2px; cursor: pointer;
+  transition: all 0.2s; font-size: 12px; line-height: 1;
+}
+.btn-del:hover { border-color: #e57373; color: #e57373; background: rgba(229,115,115,0.05); }
+
+/* Empty state */
+.empty-state {
+  padding: 64px 24px; text-align: center; display: none;
+}
+.empty-state.show { display: block; }
+.empty-icon { font-size: 36px; margin-bottom: 14px; opacity: 0.4; }
+.empty-state h3 {
+  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-style: italic;
+  color: var(--text-muted); font-weight: 300; margin-bottom: 6px;
+}
+.empty-state p { font-size: 12px; color: #ccc; letter-spacing: 1px; }
+
+/* ── SHARE POPUP ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(30,20,10,0.6); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease; padding: 20px;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+
+.popup {
+  background: var(--white); border-radius: 6px;
+  width: 100%; max-width: 370px; overflow: hidden;
+  transform: translateY(24px) scale(0.96);
+  transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.22); position: relative;
+}
+.overlay.show .popup { transform: translateY(0) scale(1); }
+
+.popup-header {
+  background: linear-gradient(135deg, var(--text) 0%, #7a5542 100%);
+  padding: 20px 24px 18px; text-align: center; position: relative;
+}
+.popup-header::after {
+  content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 60%; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201,169,110,0.5), transparent);
+}
+.popup-rings { font-size: 20px; margin-bottom: 6px; }
+.popup-header h2 {
+  font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300;
+  color: var(--white); letter-spacing: 1px;
+}
+.popup-header h2 em { font-style: italic; color: var(--gold-light); }
+.popup-guest {
+  font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic;
+  color: var(--gold-light); margin-top: 5px; opacity: 0.85;
+}
+.btn-close {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.7);
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+}
+.btn-close:hover { background: rgba(255,255,255,0.2); color: white; }
+
+.popup-body { padding: 18px 20px 20px; }
+.share-title { font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: #bbb; margin-bottom: 14px; text-align: center; }
+
+.share-list { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+
+.shr {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  cursor: pointer; background: none; border: none; padding: 0;
+  transition: transform 0.18s; width: 54px;
+}
+.shr:hover { transform: translateY(-3px); }
+.shr-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.15); overflow: hidden; flex-shrink: 0;
+}
+.shr-label { font-size: 9px; font-weight: 500; letter-spacing: 0.3px; text-transform: uppercase; color: #888; line-height: 1; text-align: center; }
+
+.divider { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(201,169,110,0.2); }
+.divider span { font-size: 9.5px; color: #ccc; letter-spacing: 2px; text-transform: uppercase; }
+
+.copy-row {
+  display: flex; gap: 8px; background: var(--cream); border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 4px; padding: 3px 3px 3px 12px; align-items: center;
+}
+.copy-row span { flex: 1; font-size: 11px; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-copy-small {
+  padding: 8px 13px; background: var(--gold); color: white; border: none;
+  border-radius: 3px; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: background 0.2s; white-space: nowrap;
+}
+.btn-copy-small:hover { background: var(--gold-dark); }
+.btn-copy-small.copied { background: #4caf50; }
+
+/* Toast */
+#_toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--text); color: #fff; padding: 11px 20px; border-radius: 30px;
+  font-size: 12.5px; font-family: 'Jost', sans-serif; z-index: 9999; opacity: 0;
+  transition: all .3s; max-width: 300px; text-align: center; line-height: 1.4;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25); pointer-events: none;
+}
+#_toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Animations */
+@keyframes fadeDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .table-head { display: none; }
+  .guest-row {
+    grid-template-columns: 1fr;
+    padding: 16px 20px;
+    gap: 8px; border-bottom: 1px solid var(--border);
+  }
+  .td { padding: 2px 0; font-size: 13px; }
+  .url-text { max-width: 220px; }
+  .topbar { padding: 0 16px; }
+  .topbar-brand { font-size: 15px; }
+  .nav-btn span { display: none; }
+}
+@media (max-width: 600px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .page { padding: 24px 14px 60px; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-brand">Phương Nam <span>&</span> Thu Bích</div>
+  <div class="topbar-nav"></div>
+</div>
+
+<!-- Page -->
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Danh Sách <em>Khách Mời</em></h1>
+      <p>Quản lý và gửi thiệp mời</p>
+    </div>
+    <div class="header-actions">
+      <a class="btn-add" href="wedding-invite.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Thêm khách
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-val" id="statTotal">0</div>
+      <div class="stat-label">Tổng khách</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statToday">0</div>
+      <div class="stat-label">Thêm hôm nay</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statWithNote">0</div>
+      <div class="stat-label">Có ghi chú</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statWeek">0</div>
+      <div class="stat-label">Tuần này</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Tìm tên khách, ghi chú…" oninput="filterGuests()" />
+    </div>
+    <div class="toolbar-right">
+      <span class="count-badge" id="countBadge">0 khách</span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-head">
+      <div class="th">Tên khách mời</div>
+      <div class="th">Ghi chú</div>
+      <div class="th">Link</div>
+      <div class="th">Ngày tạo</div>
+      <div class="th" style="text-align:right;">Hành động</div>
+    </div>
+    <div id="guestList"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">💌</div>
+      <h3>Chưa có khách mời nào</h3>
+      <p>Nhấn "Thêm khách" để bắt đầu tạo thiệp mời</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Share Popup -->
+<div class="overlay" id="overlay" onclick="closeOnOverlay(event)">
+  <div class="popup">
+    <div class="popup-header">
+      <button class="btn-close" onclick="closePopup()">✕</button>
+      <div class="popup-rings">💍</div>
+      <h2>Chia sẻ <em>Thiệp</em> Cưới</h2>
+      <div class="popup-guest" id="popupGuestName"></div>
+    </div>
+    <div class="popup-body">
+      <p class="share-title">Chia sẻ qua</p>
+      <div class="share-list">
+
+        <button class="shr" onclick="shareZalo()" title="Zalo">
+          <div class="shr-circle" style="background:#0068ff;">
+            <svg width="26" height="26" viewBox="0 0 48 48"><text x="24" y="33" text-anchor="middle" font-size="24" font-weight="bold" fill="white" font-family="Arial">Z</text></svg>
+          </div>
+          <span class="shr-label">Zalo</span>
+        </button>
+
+        <button class="shr" onclick="shareZaloMsg()" title="Zalo Chat">
+          <div class="shr-circle" style="background:#0052cc;">
+            <svg width="44" height="44" viewBox="0 0 44 44"><text x="16" y="24" font-size="16" font-weight="bold" fill="white" font-family="Arial">Z</text><circle cx="30" cy="30" r="9" fill="#00c853"/><text x="30" y="35" text-anchor="middle" font-size="13" fill="white" font-family="Arial">+</text></svg>
+          </div>
+          <span class="shr-label">Zalo Chat</span>
+        </button>
+
+        <button class="shr" onclick="shareFacebook()" title="Facebook">
+          <div class="shr-circle" style="background:#1877f2;">
+            <svg width="24" height="24" viewBox="0 0 48 48"><path d="M28 16h-3c-1.1 0-1 .9-1 1.5V20h4l-.5 4H24v12h-4V24h-3v-4h3v-3c0-3.3 2-5 5-5 1.4 0 3 .1 3 .1V16z" fill="white"/></svg>
+          </div>
+          <span class="shr-label">Facebook</span>
+        </button>
+
+        <button class="shr" onclick="shareMessenger()" title="Messenger">
+          <div class="shr-circle">
+            <svg width="44" height="44" viewBox="0 0 44 44"><defs><linearGradient id="mg" x1="0" y1="0" x2="44" y2="44"><stop offset="0%" stop-color="#0099ff"/><stop offset="100%" stop-color="#a033ff"/></linearGradient></defs><circle cx="22" cy="22" r="22" fill="url(#mg)"/><path d="M22 7C13.163 7 6 13.71 6 21.95c0 4.594 2.187 8.706 5.623 11.473V37l5.096-2.804c1.358.378 2.797.58 4.281.58 8.837 0 16-6.71 16-14.95C37 13.71 30.837 7 22 7zm1.616 20.137l-4.07-4.346-7.952 4.346 8.741-9.275 4.17 4.347 7.853-4.347-8.742 9.275z" fill="white"/></svg>
+          </div>
+          <span class="shr-label">Messenger</span>
+        </button>
+
+        <button class="shr" onclick="shareInstagram()" title="Instagram">
+          <div class="shr-circle">
+            <svg width="44" height="44" viewBox="0 0 44 44"><defs><linearGradient id="ig" x1="0" y1="44" x2="44" y2="0"><stop offset="0%" stop-color="#f09433"/><stop offset="40%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><circle cx="22" cy="22" r="22" fill="url(#ig)"/><rect x="11" y="11" width="22" height="22" rx="6" fill="none" stroke="white" stroke-width="1.8"/><circle cx="22" cy="22" r="5.5" fill="none" stroke="white" stroke-width="1.8"/><circle cx="28.5" cy="15.5" r="1.4" fill="white"/></svg>
+          </div>
+          <span class="shr-label">Instagram</span>
+        </button>
+
+        <button class="shr" onclick="shareTikTok()" title="TikTok">
+          <div class="shr-circle" style="background:#010101;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.53V6.79a4.85 4.85 0 01-1.01-.1z"/></svg>
+          </div>
+          <span class="shr-label">TikTok</span>
+        </button>
+
+        <button class="shr" onclick="shareGmail()" title="Gmail">
+          <div class="shr-circle" style="background:white;box-shadow:0 2px 8px rgba(0,0,0,0.18);">
+            <svg width="24" height="18" viewBox="0 0 24 18"><rect width="24" height="18" rx="2" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.8"/><path d="M0 2l12 8 12-8" fill="none" stroke="#ea4335" stroke-width="1.8"/></svg>
+          </div>
+          <span class="shr-label">Gmail</span>
+        </button>
+
+      </div>
+
+      <div class="divider"><span>Link thiệp</span></div>
+      <div class="copy-row">
+        <span id="popupUrl"></span>
+        <button class="btn-copy-small" id="copyBtn" onclick="copyLinkDirect()">Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="_toast"></div>
+
+<script>
+// ── DATA ──
+let guests = JSON.parse(localStorage.getItem('weddingGuests') || '[]');
+let currentGuest = null; // { name, note, url }
+let filteredGuests = [];
+
+function saveGuests() {
+  localStorage.setItem('weddingGuests', JSON.stringify(guests));
+}
+
+// ── RENDER ──
+function render() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  filteredGuests = q
+    ? guests.filter(g => g.name.toLowerCase().includes(q) || (g.note||'').toLowerCase().includes(q))
+    : [...guests];
+
+  updateStats();
+  renderList();
+}
+
+function updateStats() {
+  const today = new Date().toDateString();
+  const weekAgo = Date.now() - 7 * 86400000;
+  document.getElementById('statTotal').textContent = guests.length;
+  document.getElementById('statToday').textContent = guests.filter(g => new Date(g.date).toDateString() === today).length;
+  document.getElementById('statWithNote').textContent = guests.filter(g => g.note && g.note.trim()).length;
+  document.getElementById('statWeek').textContent = guests.filter(g => new Date(g.date).getTime() >= weekAgo).length;
+  document.getElementById('countBadge').textContent = filteredGuests.length + ' khách';
+}
+
+function renderList() {
+  const list = document.getElementById('guestList');
+  const empty = document.getElementById('emptyState');
+
+  if (filteredGuests.length === 0) {
+    list.innerHTML = '';
+    empty.classList.add('show');
+    return;
+  }
+  empty.classList.remove('show');
+
+  list.innerHTML = filteredGuests.map((g, i) => {
+    const d = new Date(g.date);
+    const dateStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+    const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    const realIdx = guests.indexOf(g) + 1;
+
+    return `
+    <div class="guest-row" style="animation-delay:${i*0.04}s">
+      <div class="td guest-name-cell">
+        <div class="guest-name-val">${escHtml(g.name)}</div>
+        <div class="guest-index">#${realIdx}</div>
+      </div>
+      <div class="td">
+        ${g.note ? `<span class="note-pill">${escHtml(g.note)}</span>` : `<span class="note-empty">—</span>`}
+      </div>
+      <div class="td url-cell">
+        <button class="url-copy" onclick="copyUrl('${escHtml(g.url)}', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy link
+        </button>
+      </div>
+      <div class="td date-val">
+        ${dateStr}<span>${timeStr}</span>
+      </div>
+      <div class="td action-cell">
+        <button class="btn-invite-row" onclick="openSharePopup(${guests.indexOf(g)})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          Mời
+        </button>
+        <button class="btn-del" onclick="deleteGuest(${guests.indexOf(g)})" title="Xoá">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function filterGuests() { render(); }
+
+function deleteGuest(idx) {
+  if (!confirm(`Xoá khách "${guests[idx].name}"?`)) return;
+  guests.splice(idx, 1);
+  saveGuests();
+  render();
+  showToast('Đã xoá khách mời');
+}
+
+function copyUrl(url, btn) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = 'Đã copy ✓';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
+  });
+}
+
+// ── SHARE POPUP ──
+function openSharePopup(idx) {
+  currentGuest = guests[idx];
+  document.getElementById('popupGuestName').textContent = '— ' + currentGuest.name + ' —';
+  document.getElementById('popupUrl').textContent = currentGuest.url;
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePopup() {
+  document.getElementById('overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+function closeOnOverlay(e) {
+  if (e.target === document.getElementById('overlay')) closePopup();
+}
+
+function getMsg() { return `💍 Kính mời ${currentGuest.name} đến dự lễ cưới của chúng mình!\n\nXem thiệp tại: ${currentGuest.url}`; }
+
+function shareZalo()     { window.open(`https://zalo.me/share?text=${encodeURIComponent(getMsg())}`, '_blank'); }
+function shareZaloMsg()  { window.open(`https://zalo.me/?src=qr&text=${encodeURIComponent(getMsg())}`, '_blank'); }
+function shareFacebook() { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentGuest.url)}`, '_blank'); }
+function shareMessenger(){ window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(currentGuest.url)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(currentGuest.url)}`, '_blank'); }
+function shareInstagram(){ copyText(currentGuest.url); showToast('Đã copy link! Mở Instagram và dán vào Story 📸'); setTimeout(()=>window.open('https://www.instagram.com/','_blank'),800); }
+function shareTikTok()   { copyText(currentGuest.url); showToast('Đã copy link! Mở TikTok và dán vào bio 🎵'); setTimeout(()=>window.open('https://www.tiktok.com/','_blank'),800); }
+function shareGmail() {
+  const sub = encodeURIComponent(`Thiep Moi Cuoi - Kinh moi ${currentGuest.name}`);
+  const body = encodeURIComponent(`Kinh gui ${currentGuest.name},\n\nChung toi tran trong kinh moi ban den du le cuoi cua chung toi.\n\nXem thiep moi tai:\n${currentGuest.url}\n\nTran trong,\nPhuong Nam & Thu Bich`);
+  window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${sub}&body=${body}`, '_blank');
+}
+
+function copyText(text) {
+  if (navigator.clipboard) navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text));
+  else fallbackCopy(text);
+}
+function fallbackCopy(text) {
+  const el = document.createElement('textarea');
+  el.value = text; document.body.appendChild(el); el.select();
+  document.execCommand('copy'); document.body.removeChild(el);
+}
+function copyLinkDirect() {
+  copyText(currentGuest.url);
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = 'Đã copy ✓'; btn.classList.add('copied');
+  setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('copied'); }, 2200);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('_toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+// Nhận data từ trang tạo thiệp nếu có (qua localStorage shared key)
+const incoming = localStorage.getItem('newGuest');
+if (incoming) {
+  try {
+    const g = JSON.parse(incoming);
+    if (g && g.name) {
+      if (!guests.find(x => x.name === g.name && x.url === g.url)) {
+        guests.unshift(g);
+        saveGuests();
+      }
+    }
+  } catch(e) {}
+  localStorage.removeItem('newGuest');
+}
+
+render();
+</script>
+</body>
+</html>
