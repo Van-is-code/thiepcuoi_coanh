@@ -10,7 +10,7 @@ style.innerHTML = `
   padding: 14px 18px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   width: 180px;
-  z-index: 999999;
+  z-index: 2147483647;
   cursor: move;
   font-family: 'Jost', sans-serif;
 }
@@ -55,7 +55,7 @@ style.innerHTML = `
   border-radius: 50%;
   cursor: pointer;
   display: none;
-  z-index: 999998;
+  z-index: 2147483646;
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
   font-size: 18px;
 }
@@ -68,10 +68,12 @@ box.id = "floatingBox";
 box.innerHTML = `
    <div id="closeFloating">✕</div>
    <h4>Điều hướng</h4>
-   <a href="/dashboard">🏠 Trang chính</a>
-   <a href="/guest-list">📖 Danh sách khách</a>
-   <a href="/wedding">💍 Thiệp cưới</a>
-   <a href="/setting">⚙️ Cài đặt</a>
+   <a href="/ngoc-anh">💌 Ngọc Anh</a>
+   <a href="/thiep-cuoi">💍 Thiệp Cưới</a>
+   <a href="/moi-cuoi">✉️ Tạo Thiệp</a>
+   <a href="/danh-sach">📋 Danh Sách</a>
+   <a href="/xac-nhan">✅ Xác Nhận</a>
+   <a href="/admin">⚙️ Admin</a>
 `;
 document.body.appendChild(box);
 

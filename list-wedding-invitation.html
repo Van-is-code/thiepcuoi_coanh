@@ -393,7 +393,11 @@ body::before {
       <p>Quản lý và gửi thiệp mời</p>
     </div>
     <div class="header-actions">
-      <a class="btn-add" href="wedding-invite.html">
+      <button class="btn-add" onclick="loadGuests()" style="background:linear-gradient(135deg,#6a9e7a,#5a8e6a);cursor:pointer;margin-right:8px;" title="Tải lại danh sách">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"/></svg>
+        Tải lại
+      </button>
+      <a class="btn-add" href="/moi-cuoi">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
         Thêm khách
       </a>
@@ -527,12 +531,45 @@ body::before {
 
 <script>
 // ── DATA ──
-let guests = JSON.parse(localStorage.getItem('weddingGuests') || '[]');
-let currentGuest = null; // { name, note, url }
+const API_BASE = window.location.origin;
+let guests = [];
+let currentGuest = null; // { name, note, url, date }
 let filteredGuests = [];
 
+// Fetch guests from API
+async function loadGuests() {
+  const list = document.getElementById('guestList');
+  const empty = document.getElementById('emptyState');
+  
+  // Show loading state
+  list.innerHTML = '<div style="padding:40px;text-align:center;color:#999;"><div style="font-size:24px;margin-bottom:10px;">⏳</div>Đang tải danh sách khách mời...</div>';
+  empty.classList.remove('show');
+  
+  try {
+    const response = await fetch(`${API_BASE}/api/guests`);
+    if (!response.ok) throw new Error('Failed to fetch guests');
+    
+    const apiGuests = await response.json();
+    
+    // Transform API response to frontend format
+    guests = apiGuests.map(g => ({
+      name: g.name,
+      note: g.description || '',
+      url: g.private_invitation ? g.private_invitation.absolute_url : '',
+      date: g.created_at // Use created_at from database
+    }));
+    
+    render();
+  } catch (error) {
+    console.error('Error loading guests:', error);
+    list.innerHTML = '<div style="padding:40px;text-align:center;color:#e57373;"><div style="font-size:24px;margin-bottom:10px;">⚠️</div>Không thể tải danh sách khách mời<br><small style="font-size:11px;margin-top:8px;display:block;">Vui lòng kiểm tra kết nối và thử lại</small></div>';
+    showToast('Không thể tải danh sách khách mời');
+  }
+}
+
 function saveGuests() {
-  localStorage.setItem('weddingGuests', JSON.stringify(guests));
+  // No longer using localStorage - data is fetched from API
+  // This function kept for compatibility but does nothing
 }
 
 // ── RENDER ──
@@ -613,10 +650,13 @@ function filterGuests() { render(); }
 
 function deleteGuest(idx) {
   if (!confirm(`Xoá khách "${guests[idx].name}"?`)) return;
+  const guestToDelete = guests[idx];
+  
+  // TODO: Call DELETE API endpoint when available
+  // For now, just remove from local array and show message
   guests.splice(idx, 1);
-  saveGuests();
   render();
-  showToast('Đã xoá khách mời');
+  showToast('Đã xoá khách mời (chỉ tạm thời - cần API DELETE)');
 }
 
 function copyUrl(url, btn) {
@@ -682,23 +722,27 @@ function showToast(msg) {
 }
 
 // ── INIT ──
-// Nhận data từ trang tạo thiệp nếu có (qua localStorage shared key)
-const incoming = localStorage.getItem('newGuest');
-if (incoming) {
-  try {
-    const g = JSON.parse(incoming);
-    if (g && g.name) {
-      if (!guests.find(x => x.name === g.name && x.url === g.url)) {
-        guests.unshift(g);
-        saveGuests();
-      }
-    }
-  } catch(e) {}
-  localStorage.removeItem('newGuest');
-}
+// Load guests from API on page load
+loadGuests();
 
-render();
+// Check for incoming guest from wedding-invitation page (optional localStorage integration)
+window.addEventListener('DOMContentLoaded', () => {
+  const incoming = localStorage.getItem('newGuest');
+  if (incoming) {
+    try {
+      const g = JSON.parse(incoming);
+      if (g && g.name) {
+        // Show toast that guest was created
+        showToast(`Đã tạo thiệp cho ${g.name} - Đang tải lại danh sách...`);
+        // Reload from API to get fresh data
+        setTimeout(() => loadGuests(), 800);
+      }
+    } catch(e) {}
+    localStorage.removeItem('newGuest');
+  }
+});
+
 </script>
-<script src="https://thiepcuoi.me/floating-widget.js" defer></script>
+<script src="/floating-widget.js"></script>
 </body>
 </html>

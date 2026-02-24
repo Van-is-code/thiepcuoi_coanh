@@ -570,14 +570,18 @@ function esc(s) {
 }
 
 // ── FETCH ──
+const API_BASE = window.location.origin;
+
 async function fetchAndRender() {
   startLoad();
   try {
-    const res = await fetch('/api/guests');
+    const res = await fetch(`${API_BASE}/api/messages-checkins`);
+    if (!res.ok) throw new Error('Failed to fetch check-ins');
     allData = await res.json();
     if (!Array.isArray(allData)) allData = [];
   } catch(e) {
-    console.warn('API unavailable, using empty data');
+    console.error('Error fetching check-ins:', e);
+    showToast('Không thể tải dữ liệu xác nhận');
     allData = [];
   }
   endLoad();
@@ -763,6 +767,6 @@ document.addEventListener('keydown', e => {
 // ── INIT ──
 fetchAndRender();
 </script>
-<script src="https://thiepcuoi.me/floating-widget.js" defer></script>
+<script src="/floating-widget.js"></script>
 </body>
 </html>
