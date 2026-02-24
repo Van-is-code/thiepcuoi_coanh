@@ -539,7 +539,7 @@ app.get('/thiepmoi/:slug', async (req, res, next) => {
       inv: req.params.slug,
     }).toString();
 
-    return res.redirect(`/vobe2.html?${redirectParams}`);
+    return res.redirect(`/ngoc-anh?${redirectParams}`);
   } catch (error) {
     return next(error);
   }
