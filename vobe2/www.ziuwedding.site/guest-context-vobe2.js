@@ -26,7 +26,7 @@
     const envelope = document.getElementById('GROUP1');
     if (!envelope) return;
 
-    const targetUrl = new URL('phongbibe2.html', window.location.href);
+    const targetUrl = new URL('/thiep-cuoi', window.location.href);
 
     if (context.guestId) targetUrl.searchParams.set('gid', context.guestId);
     if (context.guestName) targetUrl.searchParams.set('gname', context.guestName);
