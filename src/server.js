@@ -33,8 +33,23 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/w.ladicdn.com', express.static(cdnMirrorRoot));
-app.use('/admin.html', express.static(path.join(backendRoot, 'admin.html')));
 app.use(express.static(staticRoot));
+
+app.get(['/moi-cuoi', '/moi-cuoi/'], (_, res) => {
+  res.sendFile(path.join(staticRoot, 'wedding-invitation.html'));
+});
+
+app.get(['/admin', '/admin/'], (_, res) => {
+  res.sendFile(path.join(backendRoot, 'admin.html'));
+});
+
+app.get(['/ngoc-anh', '/ngoc-anh/'], (_, res) => {
+  res.sendFile(path.join(staticRoot, 'vobe2.html'));
+});
+
+app.get(['/thiep-cuoi', '/thiep-cuoi/'], (_, res) => {
+  res.sendFile(path.join(staticRoot, 'phongbibe2.html'));
+});
 
 app.get('/health', (_, res) => {
   res.json({ ok: true, service: 'wedding-backend' });
