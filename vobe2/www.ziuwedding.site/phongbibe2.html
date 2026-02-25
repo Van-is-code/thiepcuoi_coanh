@@ -6239,6 +6239,62 @@
     });
   </script>
   <script src="guest-context-phong.js" type="text/javascript"></script>
+  <script>
+    // Fetch NGAY_CUOI from server and update countdown
+    async function initCountdownFromConfig() {
+      try {
+        const res = await fetch('/api/public-config');
+        const config = await res.json();
+        const ngayCuoiStr = config.ngay_cuoi || '';
+        
+        if (ngayCuoiStr) {
+          // Parse NGAY_CUOI (format: YYYY-MM-DDTHH:MM:SS)
+          const match = ngayCuoiStr.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}):(\d{2}))?/);
+          if (match) {
+            const [, year, month, day, hour = '0', min = '0', sec = '0'] = match;
+            const targetDate = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(min), Number(sec));
+            
+            // Update countdown every second
+            function updateCountdown() {
+              const now = new Date();
+              const diff = targetDate - now;
+              
+              if (diff <= 0) {
+                document.querySelectorAll('#COUNTDOWN1 .ladi-countdown-text span').forEach(el => el.textContent = '00');
+                return;
+              }
+              
+              const totalSeconds = Math.floor(diff / 1000);
+              const days = Math.floor(totalSeconds / 86400);
+              const hours = Math.floor((totalSeconds % 86400) / 3600);
+              const minutes = Math.floor((totalSeconds % 3600) / 60);
+              const seconds = totalSeconds % 60;
+              
+              const items = document.querySelectorAll('#COUNTDOWN1 .ladi-countdown-text span');
+              if (items.length >= 4) {
+                items[0].textContent = String(days).padStart(2, '0');
+                items[1].textContent = String(hours).padStart(2, '0');
+                items[2].textContent = String(minutes).padStart(2, '0');
+                items[3].textContent = String(seconds).padStart(2, '0');
+              }
+            }
+            
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load countdown config:', e);
+      }
+    }
+    
+    // Init when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCountdownFromConfig);
+    } else {
+      initCountdownFromConfig();
+    }
+  </script>
 </body>
 <!-- Mirrored from www.ziuwedding.site/phongbibe2 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 23 Feb 2026 07:46:17 GMT -->
 
