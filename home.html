@@ -209,17 +209,30 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 </div>
 <script>
 const API_BASE = window.location.origin;
-const YES_KEYS = ['mình chắc chắn sẽ đến','chắc chắn sẽ đến','có thể đến','đi','có'];
+const YES_KEYS = ['mình sẽ tham dự','sẽ tham dự','tham dự','có thể đến','đi','có'];
 let thiepUrl = '';
 let weddingDate = '';
 
 function parseWeddingDate(value) {
   if (!value) return null;
-  const d = new Date(value);
-  if (!isNaN(d)) return d;
-  const normalized = String(value).replace(' ', 'T');
-  const d2 = new Date(normalized);
-  return isNaN(d2) ? null : d2;
+  const dateStr = String(value).trim();
+  
+  // Handle YYYY-MM-DD or YYYY-MM-DD HH:MM:SS format
+  if (dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const parts = dateStr.split(' ');
+    const datePart = parts[0]; // YYYY-MM-DD
+    const timePart = parts[1] || '00:00:00'; // HH:MM:SS (default midnight)
+    
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, min, sec] = timePart.split(':').map(Number);
+    
+    // Create date in local timezone
+    return new Date(year, month - 1, day, hour || 0, min || 0, sec || 0);
+  }
+  
+  // Fallback for other formats
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
 }
 
 function formatWeddingDate(value) {
@@ -280,9 +293,16 @@ async function loadStats() {
 
   try {
     const res = await fetch(`${API_BASE}/api/messages-checkins`);
-    const data = await res.json();
-    if (Array.isArray(data)) {
-      const count = data.filter(item => YES_KEYS.some(key => (item.confirm_attendance || '').toLowerCase().includes(key))).length;
+    const rawData = await res.json();
+    if (Array.isArray(rawData)) {
+      const seen = new Set();
+      const uniqueData = rawData.filter(item => {
+        const key = `${item.id}-${item.name_guest}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      const count = uniqueData.filter(item => YES_KEYS.some(key => (item.confirm_attendance || '').toLowerCase().includes(key))).length;
       document.getElementById('qsRsvp').textContent = count;
     }
   } catch (e) {}
