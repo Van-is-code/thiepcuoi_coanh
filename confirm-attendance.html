@@ -508,8 +508,8 @@ function showToast(msg) {
 }
 
 // ── STATUS ──
-const YES_KEYS = ['mình chắc chắn sẽ đến','chắc chắn sẽ đến','có thể đến','đi','có'];
-const NO_KEYS  = ['xin lỗi mình bận','không tham gia','không thể'];
+const YES_KEYS = ['mình sẽ tham dự','sẽ tham dự','tham dự','có thể đến','đi','có'];
+const NO_KEYS  = ['thật tiếc mình bận','bận mất rồi','không tham gia','không thể'];
 
 function getStatus(val) {
   const v = (val||'').toLowerCase();
@@ -521,9 +521,9 @@ function getStatus(val) {
 function statusBadge(val) {
   const s = getStatus(val);
   const cfg = {
-    yes:   { cls: 'badge-yes',   icon: '✓', label: 'Tham dự' },
-    no:    { cls: 'badge-no',    icon: '✕', label: 'Không đến' },
-    maybe: { cls: 'badge-maybe', icon: '?', label: 'Chưa rõ' },
+    yes:   { cls: 'badge-yes',   icon: '✓', label: 'Mình sẽ tham dự' },
+    no:    { cls: 'badge-no',    icon: '✕', label: 'Thật tiếc mình bận mất rồi' },
+    maybe: { cls: 'badge-maybe', icon: '?', label: 'Mình đang cân nhắc' },
   }[s];
   return `<span class="badge ${cfg.cls}">${cfg.icon} ${cfg.label}</span>`;
 }
@@ -565,7 +565,13 @@ async function fetchAndRender() {
     if (!Array.isArray(rawData)) {
       allData = [];
     } else {
-      allData = rawData.map(item => ({
+      const seen = new Set();
+      allData = rawData.filter(item => {
+        const key = `${item.id}-${item.name_guest}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      }).map(item => ({
         id: item.id,
         name: item.name_guest,
         message: item.messages,
