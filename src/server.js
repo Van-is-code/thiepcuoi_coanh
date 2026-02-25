@@ -36,6 +36,10 @@ app.use('/w.ladicdn.com', express.static(cdnMirrorRoot));
 app.use(express.static(staticRoot));
 app.use(express.static(backendRoot)); // Serve floating-widget.js and other root files
 
+app.get(['/', '/home', '/home/'], (_, res) => {
+  res.sendFile(path.join(backendRoot, 'home.html'));
+});
+
 app.get(['/moi-cuoi', '/moi-cuoi/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'wedding-invitation.html'));
 });
