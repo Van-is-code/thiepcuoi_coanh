@@ -40,20 +40,7 @@ body::before {
     radial-gradient(ellipse at 100% 100%, rgba(201,169,110,0.06) 0%, transparent 60%);
 }
 
-/* ── TOPBAR ── */
-.topbar {
-  background: var(--text);
-  padding: 0 32px;
-  display: flex; align-items: center; justify-content: space-between;
-  height: 56px; position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.15);
-}
-.topbar-brand {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 18px; font-style: italic; font-weight: 400;
-  color: var(--gold-light); letter-spacing: 1px;
-}
-.topbar-brand span { color: rgba(255,255,255,0.35); font-style: normal; margin: 0 8px; }
+
 
 /* ── PAGE ── */
 .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
@@ -344,12 +331,12 @@ body::before {
   .page { padding: 24px 14px 60px; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .filter-grid { grid-template-columns: 1fr 1fr; }
-  .topbar { padding: 0 16px; }
+  
   .page-header h1 { font-size: 30px; }
 }
 
 @media print {
-  .topbar, .filter-card, .pagination, #_toast, .modal-overlay { display: none !important; }
+   .filter-card, .pagination, #_toast, .modal-overlay { display: none !important; }
   body::before { display: none; }
 }
 </style>
@@ -359,10 +346,7 @@ body::before {
 <div class="loading-bar" id="loadingBar"></div>
 <div id="_toast"></div>
 
-<!-- Topbar -->
-<div class="topbar">
-  <div class="topbar-brand">Phương Nam <span>&</span> Thu Bích</div>
-</div>
+
 
 <!-- Page -->
 <div class="page">
@@ -577,8 +561,20 @@ async function fetchAndRender() {
   try {
     const res = await fetch(`${API_BASE}/api/messages-checkins`);
     if (!res.ok) throw new Error('Failed to fetch check-ins');
-    allData = await res.json();
-    if (!Array.isArray(allData)) allData = [];
+    const rawData = await res.json();
+    if (!Array.isArray(rawData)) {
+      allData = [];
+    } else {
+      allData = rawData.map(item => ({
+        id: item.id,
+        name: item.name_guest,
+        message: item.messages,
+        will_attend: item.confirm_attendance,
+        accompany: item.number_of_attendees,
+        guest_of: item.guests_type,
+        created_at: item.created_at,
+      }));
+    }
   } catch(e) {
     console.error('Error fetching check-ins:', e);
     showToast('Không thể tải dữ liệu xác nhận');

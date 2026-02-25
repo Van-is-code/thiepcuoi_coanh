@@ -64,6 +64,13 @@ app.get('/health', (_, res) => {
   res.json({ ok: true, service: 'wedding-backend' });
 });
 
+app.get('/api/public-config', (_, res) => {
+  res.json({
+    thiep_public_url: process.env.THIEP_PUBLIC_URL || '',
+    ngay_cuoi: process.env.NGAY_CUOI || '',
+  });
+});
+
 app.get('/api/email-template', async (_, res, next) => {
   try {
     const templatePath = path.join(__dirname, 'email-template.html');

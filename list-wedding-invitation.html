@@ -38,22 +38,9 @@ body::before {
     radial-gradient(ellipse at 100% 100%, rgba(201,169,110,0.06) 0%, transparent 60%);
 }
 
-/* ── TOP NAV ── */
-.topbar {
-  background: var(--text);
-  padding: 0 32px;
-  display: flex; align-items: center; justify-content: space-between;
-  height: 56px;
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.15);
-}
-.topbar-brand {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 18px; font-style: italic; font-weight: 400;
-  color: var(--gold-light); letter-spacing: 1px;
-}
-.topbar-brand span { color: rgba(255,255,255,0.4); font-style: normal; margin: 0 8px; }
-.topbar-nav { display: flex; gap: 4px; }
+
+
+
 .nav-btn {
   padding: 7px 16px;
   background: none; border: 1px solid transparent;
@@ -364,8 +351,7 @@ body::before {
   }
   .td { padding: 2px 0; font-size: 13px; }
   .url-text { max-width: 220px; }
-  .topbar { padding: 0 16px; }
-  .topbar-brand { font-size: 15px; }
+
   .nav-btn span { display: none; }
 }
 @media (max-width: 600px) {
@@ -377,11 +363,6 @@ body::before {
 </head>
 <body>
 
-<!-- Top bar -->
-<div class="topbar">
-  <div class="topbar-brand">Phương Nam <span>&</span> Thu Bích</div>
-  <div class="topbar-nav"></div>
-</div>
 
 <!-- Page -->
 <div class="page">
