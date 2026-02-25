@@ -434,24 +434,13 @@ body::before {
     </div>
   </div>
 
-  <!-- Desktop table -->
-  <div class="table-card" id="tableWrap">
-    <div class="table-head">
-      <div class="th">Tên khách</div>
-      <div class="th">Lời nhắn</div>
-      <div class="th">Tham dự</div>
-      <div class="th">Thời gian</div>
-    </div>
-    <div id="tableBody"></div>
-    <div class="empty-state" id="emptyTable">
-      <div class="empty-icon">💌</div>
-      <h3>Chưa có dữ liệu</h3>
-      <p>Không tìm thấy phản hồi phù hợp</p>
-    </div>
-  </div>
-
   <!-- Mobile cards -->
   <div id="mobileList"></div>
+  <div class="empty-state" id="emptyTable" style="display:none;">
+    <div class="empty-icon">💌</div>
+    <h3>Chưa có dữ liệu</h3>
+    <p>Không tìm thấy phản hồi phù hợp</p>
+  </div>
 
   <!-- Pagination -->
   <div class="pagination" id="pagination"></div>
@@ -652,7 +641,6 @@ function renderPage() {
   const start = (currentPage - 1) * PAGE_SIZE;
   const data  = filtered.slice(start, start + PAGE_SIZE);
 
-  renderTable(data);
   renderMobile(data);
   renderPagination(pages);
 }
