@@ -217,22 +217,25 @@ function parseWeddingDate(value) {
   if (!value) return null;
   const dateStr = String(value).trim();
   
-  // Handle YYYY-MM-DD or YYYY-MM-DD HH:MM:SS format
+  // Try parsing as ISO format (YYYY-MM-DDTHH:MM:SS or YYYY-MM-DD HH:MM:SS)
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) {
+    return d;
+  }
+  
+  // Fallback: try manual parsing for YYYY-MM-DD format
   if (dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
-    const parts = dateStr.split(' ');
+    const parts = dateStr.split(/[\s T]/);
     const datePart = parts[0]; // YYYY-MM-DD
     const timePart = parts[1] || '00:00:00'; // HH:MM:SS (default midnight)
     
     const [year, month, day] = datePart.split('-').map(Number);
-    const [hour, min, sec] = timePart.split(':').map(Number);
+    const [hour = 0, min = 0, sec = 0] = timePart.split(':').map(Number);
     
-    // Create date in local timezone
-    return new Date(year, month - 1, day, hour || 0, min || 0, sec || 0);
+    return new Date(year, month - 1, day, hour, min, sec);
   }
   
-  // Fallback for other formats
-  const d = new Date(dateStr);
-  return isNaN(d.getTime()) ? null : d;
+  return null;
 }
 
 function formatWeddingDate(value) {
