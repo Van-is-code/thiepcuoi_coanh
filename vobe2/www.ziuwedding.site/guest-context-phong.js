@@ -70,18 +70,420 @@
     // không cần inject, submit sẽ sử dụng context.guestId trực tiếp
   }
 
+  function ensureThankYouPopup() {
+    if (document.getElementById('tyOverlay')) return;
+
+    const style = document.createElement('style');
+    style.id = 'tyPopupStyles';
+    style.textContent = `
+      #tyOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        align-items: flex-end;
+        justify-content: center;
+        background: rgba(15, 8, 2, .6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        padding: 0;
+      }
+      #tyOverlay.active { display: flex; animation: tyFadeOverlay .35s ease; }
+      @keyframes tyFadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+      .ty-sheet {
+        width: 100%;
+        max-width: 430px;
+        background: #fffdf8;
+        border-radius: 28px 28px 0 0;
+        overflow: hidden;
+        animation: tySlideUp .45s cubic-bezier(.32, 1.2, .64, 1) forwards;
+        transform: translateY(100%);
+        box-shadow: 0 -12px 60px rgba(0, 0, 0, .22);
+      }
+      @keyframes tySlideUp { to { transform: translateY(0); } }
+
+      .ty-handle {
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: #d4b896;
+        margin: 12px auto 0;
+      }
+
+      .ty-photo {
+        position: relative;
+        height: 200px;
+        margin: 16px 16px 0;
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .ty-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 20%;
+        filter: brightness(.9) saturate(1.1);
+        animation: tyKbPhoto 10s ease-in-out infinite alternate;
+      }
+      @keyframes tyKbPhoto { from { transform: scale(1); } to { transform: scale(1.07); } }
+      .ty-photo::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 40%, rgba(255, 253, 248, .9) 100%);
+      }
+
+      .ty-photo-name {
+        position: absolute;
+        bottom: 12px;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        text-align: center;
+        font-family: 'Great Vibes', cursive;
+        font-size: 1.9rem;
+        color: #4a2800;
+        letter-spacing: 1px;
+        text-shadow: 0 1px 8px rgba(255, 255, 255, .5);
+      }
+
+      .hearts {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .heart {
+        position: absolute;
+        bottom: -10px;
+        opacity: 0;
+        font-size: 14px;
+        animation: tyFloatUp linear infinite;
+      }
+      .heart:nth-child(1) { left: 12%; animation-duration: 3.8s; animation-delay: .2s; }
+      .heart:nth-child(2) { left: 35%; animation-duration: 4.5s; animation-delay: 1.1s; font-size: 11px; }
+      .heart:nth-child(3) { left: 58%; animation-duration: 3.2s; animation-delay: .6s; font-size: 17px; }
+      .heart:nth-child(4) { left: 80%; animation-duration: 4.1s; animation-delay: 1.8s; }
+      @keyframes tyFloatUp {
+        0% { transform: translateY(0) scale(.8); opacity: 0; }
+        15% { opacity: .9; }
+        85% { opacity: .5; }
+        100% { transform: translateY(-215px) scale(1.2); opacity: 0; }
+      }
+
+      .ty-body { padding: 18px 24px 32px; text-align: center; }
+
+      .ty-orn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+      .ty-orn-line {
+        flex: 1;
+        max-width: 55px;
+        height: 1px;
+        background: linear-gradient(to right, transparent, #c9a96e);
+      }
+      .ty-orn-line.r { background: linear-gradient(to left, transparent, #c9a96e); }
+      .ty-orn-icon { color: #c9a96e; font-size: 14px; }
+
+      .ty-label {
+        font-size: 10px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #c9a96e;
+        margin-bottom: 6px;
+      }
+
+      .ty-title {
+        font-family: 'Great Vibes', cursive;
+        font-size: 2.4rem;
+        color: #3d2005;
+        line-height: 1.1;
+        margin-bottom: 12px;
+      }
+
+      .ty-text {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #6b5240;
+        font-style: italic;
+        font-weight: 300;
+        margin-bottom: 8px;
+      }
+
+      .ty-sub {
+        font-size: 11.5px;
+        color: #b09070;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .ty-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #fef3e2, #fde8c8);
+        border: 1px solid #e8c990;
+        border-radius: 50px;
+        padding: 6px 18px;
+        font-size: 12px;
+        color: #8a5e28;
+        letter-spacing: 1.5px;
+        margin-bottom: 22px;
+      }
+
+      .ty-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #c9a96e 0%, #a67c52 100%);
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 12px;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 0 6px 22px rgba(166, 124, 82, .4);
+        transition: transform .2s, box-shadow .2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .ty-btn:active { transform: scale(.97); }
+      .ty-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -60%;
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .35), transparent);
+        animation: tyShimmer 2.2s infinite;
+      }
+      @keyframes tyShimmer { to { left: 130%; } }
+
+      #tyConfetti {
+        position: fixed;
+        inset: 0;
+        z-index: 9998;
+        pointer-events: none;
+      }
+
+      .ty-x {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+        z-index: 10;
+        background: rgba(255, 255, 255, .8);
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b5240;
+        backdrop-filter: blur(4px);
+      }
+
+      .ty-safe { height: env(safe-area-inset-bottom, 0); }
+
+      @media (min-width: 480px) {
+        #tyOverlay {
+          align-items: center;
+          padding: 20px;
+        }
+        .ty-sheet {
+          border-radius: 24px;
+          animation: tyPopIn .45s cubic-bezier(.34, 1.4, .64, 1) forwards;
+          transform: scale(.88) translateY(20px);
+          opacity: 0;
+          box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
+        }
+      }
+      @keyframes tyPopIn { to { transform: scale(1) translateY(0); opacity: 1; } }
+    `;
+
+    const confettiCanvas = document.createElement('canvas');
+    confettiCanvas.id = 'tyConfetti';
+
+    const overlay = document.createElement('div');
+    overlay.id = 'tyOverlay';
+    overlay.innerHTML = `
+      <div class="ty-sheet">
+        <div class="ty-handle"></div>
+        <button class="ty-x" id="tyCloseX">✕</button>
+        <div class="ty-photo">
+          <img
+            src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80"
+            alt="Ảnh cưới"
+            id="tyPhoto"
+          />
+          <div class="hearts">
+            <span class="heart">🤍</span>
+            <span class="heart">💛</span>
+            <span class="heart">🤍</span>
+            <span class="heart">💛</span>
+          </div>
+          <div class="ty-photo-name">Duy Nam &amp; Vân Anh</div>
+        </div>
+
+        <div class="ty-body">
+          <div class="ty-orn">
+            <div class="ty-orn-line"></div>
+            <span class="ty-orn-icon">♡</span>
+            <div class="ty-orn-line r"></div>
+          </div>
+
+          <p class="ty-label">Trân trọng cảm ơn</p>
+          <h2 class="ty-title">Cảm ơn bạn!</h2>
+
+          <p class="ty-text">
+            Lời chúc của bạn là điều ý nghĩa nhất<br>
+            trong ngày hạnh phúc của chúng tôi ✨
+          </p>
+
+          <p class="ty-sub">
+            Chúng tôi đã nhận được lời nhắn của bạn 🌸<br>
+            Rất mong được đón tiếp bạn trong ngày trọng đại!
+          </p>
+
+          <div class="ty-date">📅 &nbsp; 18 · 01 · 2026</div>
+
+          <button class="ty-btn" id="tyCloseBtn">♡ &nbsp; Đóng lại</button>
+        </div>
+
+        <div class="ty-safe"></div>
+      </div>
+    `;
+
+    document.head.appendChild(style);
+    document.body.appendChild(confettiCanvas);
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', function (event) {
+      if (event.target === overlay) closeTY();
+    });
+    overlay.querySelector('#tyCloseX').addEventListener('click', closeTY);
+    overlay.querySelector('#tyCloseBtn').addEventListener('click', closeTY);
+  }
+
+  const TY_COLORS = ['#c9a96e', '#f0d9b0', '#f5c6cb', '#fff', '#e8c990', '#d4b896'];
+  let tyRunning = false;
+  let tyRaf;
+
+  function launchConfetti() {
+    const canvas = document.getElementById('tyConfetti');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    tyRunning = true;
+
+    const pieces = Array.from({ length: 90 }, function () {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        w: Math.random() * 8 + 3,
+        h: Math.random() * 4 + 2,
+        color: TY_COLORS[Math.floor(Math.random() * TY_COLORS.length)],
+        rot: Math.random() * Math.PI * 2,
+        spin: (Math.random() - .5) * .14,
+        vx: (Math.random() - .5) * 1.8,
+        vy: Math.random() * 2.8 + 1.4,
+        alpha: Math.random() * .5 + .45,
+      };
+    });
+
+    (function draw() {
+      if (!tyRunning) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      pieces.forEach(function (piece) {
+        piece.x += piece.vx;
+        piece.y += piece.vy;
+        piece.rot += piece.spin;
+        if (piece.y > canvas.height) {
+          piece.y = -10;
+          piece.x = Math.random() * canvas.width;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = piece.alpha;
+        ctx.translate(piece.x, piece.y);
+        ctx.rotate(piece.rot);
+        ctx.fillStyle = piece.color;
+        ctx.fillRect(-piece.w / 2, -piece.h / 2, piece.w, piece.h);
+        ctx.restore();
+      });
+
+      tyRaf = requestAnimationFrame(draw);
+    })();
+
+    setTimeout(stopConfetti, 4500);
+  }
+
+  function stopConfetti() {
+    tyRunning = false;
+    cancelAnimationFrame(tyRaf);
+
+    const canvas = document.getElementById('tyConfetti');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function showTY() {
+    ensureThankYouPopup();
+    const overlay = document.getElementById('tyOverlay');
+    if (!overlay) return;
+
+    overlay.classList.add('active');
+    overlay.style.opacity = '1';
+    launchConfetti();
+  }
+
+  function closeTY() {
+    const overlay = document.getElementById('tyOverlay');
+    if (!overlay) return;
+
+    const sheet = overlay.querySelector('.ty-sheet');
+    sheet.style.transition = 'transform .3s ease, opacity .3s ease';
+    sheet.style.transform = 'translateY(100%)';
+    sheet.style.opacity = '0';
+
+    overlay.style.transition = 'opacity .35s ease';
+    overlay.style.opacity = '0';
+
+    setTimeout(function () {
+      overlay.classList.remove('active');
+      overlay.style.cssText = '';
+      sheet.style.cssText = '';
+      stopConfetti();
+    }, 350);
+  }
+
   function wireCheckinSubmit(context) {
     const form = document.querySelector('#FORM2 form');
     if (!form) {
-      console.error('Không tìm thấy form #FORM2');
       return;
     }
 
-    console.log('Form được tìm thấy, đang gắn event submit');
-
     form.addEventListener('submit', async function (event) {
       event.preventDefault();
-      console.log('Form submit được kích hoạt');
 
       const messageInput = form.querySelector('textarea[name="message"]');
       const attendanceInput = form.querySelector('input[name="form_item6"]:checked');
@@ -104,15 +506,12 @@
         guests_type: context.guestId ? 'private' : 'public',
       };
 
-      console.log('Payload chuẩn bị gửi:', payload);
-
       if (!payload.name_guest) {
         alert('Vui lòng nhập tên của bạn.');
         return;
       }
 
       try {
-        console.log('Đang gửi request đến /api/messages-checkins...');
         const response = await fetch('/api/messages-checkins', {
           method: 'POST',
           headers: {
@@ -121,29 +520,26 @@
           body: JSON.stringify(payload),
         });
 
-        console.log('Response status:', response.status);
-
         if (!response.ok) {
           const errorBody = await response.json().catch(function () {
             return { message: 'Không gửi được lời nhắn.' };
           });
-          console.error('Lỗi từ server:', errorBody);
           throw new Error(errorBody.message || 'Không gửi được lời nhắn.');
         }
 
-        const result = await response.json();
-        console.log('Kết quả từ server:', result);
+        await response.json();
 
-        alert('Cảm ơn bạn! Lời nhắn đã được ghi nhận.');
+        showTY();
         form.reset();
+        renderGuestOnPage(context);
       } catch (error) {
-        console.error('Lỗi khi gửi form:', error);
         alert(error.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
       }
     });
   }
 
   document.addEventListener('DOMContentLoaded', async function () {
+    ensureThankYouPopup();
     const context = readContext();
     await hydrateGuestName(context);
     renderGuestOnPage(context);
