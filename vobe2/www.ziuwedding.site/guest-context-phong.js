@@ -52,7 +52,6 @@
       if (nameFormItem) {
         nameFormItem.style.display = 'none';
       }
-      console.log('Đã tự động điền tên:', context.guestName);
     } else {
       // Nếu không có guest_id: hiển thị dòng nhập tên
       if (nameFormItem) {
@@ -72,6 +71,14 @@
 
   function ensureThankYouPopup() {
     if (document.getElementById('tyOverlay')) return;
+
+    if (!document.getElementById('tyPopupFonts')) {
+      const fontLink = document.createElement('link');
+      fontLink.id = 'tyPopupFonts';
+      fontLink.rel = 'stylesheet';
+      fontLink.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400&family=Cinzel:wght@300;400&display=swap';
+      document.head.appendChild(fontLink);
+    }
 
     const style = document.createElement('style');
     style.id = 'tyPopupStyles';
@@ -148,24 +155,7 @@
         text-shadow: 0 1px 8px rgba(255, 255, 255, .5);
       }
 
-      .hearts {
-        position: absolute;
-        inset: 0;
-        z-index: 3;
-        pointer-events: none;
-        overflow: hidden;
-      }
-      .heart {
-        position: absolute;
-        bottom: -10px;
-        opacity: 0;
-        font-size: 14px;
-        animation: tyFloatUp linear infinite;
-      }
-      .heart:nth-child(1) { left: 12%; animation-duration: 3.8s; animation-delay: .2s; }
-      .heart:nth-child(2) { left: 35%; animation-duration: 4.5s; animation-delay: 1.1s; font-size: 11px; }
-      .heart:nth-child(3) { left: 58%; animation-duration: 3.2s; animation-delay: .6s; font-size: 17px; }
-      .heart:nth-child(4) { left: 80%; animation-duration: 4.1s; animation-delay: 1.8s; }
+      .hearts { display: none; }
       @keyframes tyFloatUp {
         0% { transform: translateY(0) scale(.8); opacity: 0; }
         15% { opacity: .9; }
@@ -178,18 +168,17 @@
       .ty-orn {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 0;
         justify-content: center;
         margin-bottom: 12px;
       }
       .ty-orn-line {
         flex: 1;
-        max-width: 55px;
+        max-width: 80px;
         height: 1px;
         background: linear-gradient(to right, transparent, #c9a96e);
       }
       .ty-orn-line.r { background: linear-gradient(to left, transparent, #c9a96e); }
-      .ty-orn-icon { color: #c9a96e; font-size: 14px; }
 
       .ty-label {
         font-size: 10px;
@@ -225,17 +214,39 @@
       }
 
       .ty-date {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 6px;
-        background: linear-gradient(135deg, #fef3e2, #fde8c8);
-        border: 1px solid #e8c990;
-        border-radius: 50px;
-        padding: 6px 18px;
-        font-size: 12px;
-        color: #8a5e28;
-        letter-spacing: 1.5px;
+        justify-content: center;
+        gap: 0;
         margin-bottom: 22px;
+      }
+      .ty-date-block {
+        text-align: center;
+      }
+      .ty-date-label {
+        font-family: 'Cinzel', serif;
+        font-size: 6.5px;
+        font-weight: 300;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: #c9a96e;
+        display: block;
+        margin-bottom: 3px;
+      }
+      .ty-date-num {
+        font-family: 'Cinzel', serif;
+        font-size: 1rem;
+        font-weight: 300;
+        color: #3d2005;
+        line-height: 1;
+        letter-spacing: 1px;
+      }
+      .ty-date-sep {
+        width: 1px;
+        height: 24px;
+        background: linear-gradient(to bottom, transparent, #c9a96e, transparent);
+        margin: 0 14px;
+        flex-shrink: 0;
       }
 
       .ty-btn {
@@ -328,10 +339,10 @@
             id="tyPhoto"
           />
           <div class="hearts">
-            <span class="heart">🤍</span>
-            <span class="heart">💛</span>
-            <span class="heart">🤍</span>
-            <span class="heart">💛</span>
+            <span class="heart"></span>
+            <span class="heart"></span>
+            <span class="heart"></span>
+            <span class="heart"></span>
           </div>
           <div class="ty-photo-name">Duy Nam &amp; Vân Anh</div>
         </div>
@@ -339,7 +350,6 @@
         <div class="ty-body">
           <div class="ty-orn">
             <div class="ty-orn-line"></div>
-            <span class="ty-orn-icon">♡</span>
             <div class="ty-orn-line r"></div>
           </div>
 
@@ -348,17 +358,32 @@
 
           <p class="ty-text">
             Lời chúc của bạn là điều ý nghĩa nhất<br>
-            trong ngày hạnh phúc của chúng tôi ✨
+            trong ngày hạnh phúc của chúng tôi
           </p>
 
           <p class="ty-sub">
-            Chúng tôi đã nhận được lời nhắn của bạn 🌸<br>
+            Chúng tôi đã nhận được lời nhắn của bạn<br>
             Rất mong được đón tiếp bạn trong ngày trọng đại!
           </p>
 
-          <div class="ty-date">📅 &nbsp; 18 · 01 · 2026</div>
+          <div class="ty-date">
+            <div class="ty-date-block">
+              <span class="ty-date-label">Ngày</span>
+              <span class="ty-date-num">18</span>
+            </div>
+            <div class="ty-date-sep"></div>
+            <div class="ty-date-block">
+              <span class="ty-date-label">Tháng</span>
+              <span class="ty-date-num">01</span>
+            </div>
+            <div class="ty-date-sep"></div>
+            <div class="ty-date-block">
+              <span class="ty-date-label">Năm</span>
+              <span class="ty-date-num">2026</span>
+            </div>
+          </div>
 
-          <button class="ty-btn" id="tyCloseBtn">♡ &nbsp; Đóng lại</button>
+          <button class="ty-btn" id="tyCloseBtn">Đóng lại</button>
         </div>
 
         <div class="ty-safe"></div>
