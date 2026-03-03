@@ -14,12 +14,11 @@
   }
 
   function updateInvitationText(guestName) {
-    if (!guestName) return;
-
     const guestHeadline = document.querySelector('#HEADLINE3 .ladi-headline');
     if (!guestHeadline) return;
 
-    guestHeadline.textContent = ` ${guestName}`;
+    const finalGuestName = String(guestName || '').trim() || 'Quý khách';
+    guestHeadline.textContent = ` ${finalGuestName}`;
   }
 
   function wireEnvelopeClick(context) {
@@ -45,13 +44,8 @@
     const line1 = document.getElementById('LINE1');
     const headline3 = document.getElementById('HEADLINE3');
 
-    if (!context.guestId) {
-      if (line1) line1.style.display = 'none';
-      if (headline3) headline3.style.display = 'none';
-    } else {
-      if (line1) line1.style.display = 'block';
-      if (headline3) headline3.style.display = 'block';
-    }
+    if (line1) line1.style.display = 'block';
+    if (headline3) headline3.style.display = 'block';
   }
 
   document.addEventListener('DOMContentLoaded', function () {

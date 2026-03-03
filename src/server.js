@@ -559,7 +559,7 @@ app.get('/thiepmoi/:slug', async (req, res, next) => {
       inv: req.params.slug,
     }).toString();
 
-    return res.redirect(`/ngoc-anh?${redirectParams}`);
+    return res.redirect(`/vanphong-ngocanh?${redirectParams}`);
   } catch (error) {
     return next(error);
   }
