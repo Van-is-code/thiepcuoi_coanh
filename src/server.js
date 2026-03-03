@@ -56,6 +56,10 @@ app.get(['/xac-nhan', '/xac-nhan/'], (_, res) => {
   res.sendFile(path.join(backendRoot, 'confirm-attendance.html'));
 });
 
+app.get(['/ngoc-anh', '/ngoc-anh/'], (_, res) => {
+  res.sendFile(path.join(staticRoot, 'vobe2.html'));
+});
+
 app.get(['/vanphong-ngocanh', '/vanphong-ngocanh/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'vobe2.html'));
 });
