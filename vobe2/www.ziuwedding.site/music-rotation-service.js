@@ -4,9 +4,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const sourceEl = audio ? audio.querySelector("source") : null;
   if (!audio || !btn || !sourceEl) return;
 
-  // Co the set window.MUSIC_PLAYLIST = ["link1", "link2", ...] trong HTML de map nhac.
+  // Bat buoc set window.MUSIC_PLAYLIST = ["link1", "link2", ...] trong HTML.
   const fromWindow = Array.isArray(window.MUSIC_PLAYLIST) ? window.MUSIC_PLAYLIST : [];
-  const MUSIC_PLAYLIST = (fromWindow.length > 0 ? fromWindow : [sourceEl.src]).filter(Boolean);
+  const MUSIC_PLAYLIST = fromWindow
+    .map(function (item) { return String(item || "").trim(); })
+    .filter(Boolean);
+  if (MUSIC_PLAYLIST.length === 0) {
+    console.warn("MUSIC_PLAYLIST is empty. Please configure at least 1 track in HTML.");
+    return;
+  }
   const DEFAULT_SWITCH_MINUTES = 30;
   const configuredSwitchMinutes = Number(window.MUSIC_SWITCH_MINUTES);
   const switchMinutes = Number.isFinite(configuredSwitchMinutes) && configuredSwitchMinutes > 0
@@ -53,15 +59,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function randomAndSwitchTrack() {
-    if (MUSIC_PLAYLIST.length === 0) return;
     const nextIndex = pickRandomTrackIndex(currentTrackIndex);
     setTrack(nextIndex);
   }
 
   // Chon bai random dau tien khi tai trang.
-  if (MUSIC_PLAYLIST.length > 0) {
-    randomAndSwitchTrack();
-  }
+  randomAndSwitchTrack();
 
   // Cu 30 phut doi sang 1 bai random khac va lap lai.
   setInterval(randomAndSwitchTrack, TRACK_SWITCH_INTERVAL_MS);
