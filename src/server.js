@@ -64,6 +64,10 @@ app.get(['/vanphong-ngocanh', '/vanphong-ngocanh/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'vobe2.html'));
 });
 
+app.get(['/vanphong-ngocanh', '/tranphong-ngocanh/'], (_, res) => {
+  res.sendFile(path.join(staticRoot, 'vobe2.html'));
+});
+
 app.get(['/thiep-cuoi', '/thiep-cuoi/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'phongbibe2.html'));
 });
@@ -73,9 +77,18 @@ app.get('/health', (_, res) => {
 });
 
 app.get('/api/public-config', (_, res) => {
+  const thiepPublicUrl = String(process.env.THIEP_PUBLIC_URL || '').trim();
+  const ngayCuoi = String(process.env.NGAY_CUOI || '').trim();
+
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   res.json({
-    thiep_public_url: process.env.THIEP_PUBLIC_URL || '',
-    ngay_cuoi: process.env.NGAY_CUOI || '',
+    thiep_public_url: thiepPublicUrl,
+    ngay_cuoi: ngayCuoi,
+    THIEP_PUBLIC_URL: thiepPublicUrl,
+    NGAY_CUOI: ngayCuoi,
   });
 });
 

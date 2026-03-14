@@ -667,10 +667,42 @@ function closeOnOverlay(e) {
 
 function getMsg() { return `💍 Kính mời ${currentGuest.name} đến dự lễ cưới của chúng mình!\n\nXem thiệp tại: ${currentGuest.url}`; }
 
-function shareZalo()     { window.open(`https://zalo.me/share?text=${encodeURIComponent(getMsg())}`, '_blank'); }
-function shareZaloMsg()  { window.open(`https://zalo.me/?src=qr&text=${encodeURIComponent(getMsg())}`, '_blank'); }
-function shareFacebook() { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentGuest.url)}`, '_blank'); }
-function shareMessenger(){ window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(currentGuest.url)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(currentGuest.url)}`, '_blank'); }
+function shareZalo() {
+  const msg = encodeURIComponent(getMsg());
+  const appUrl = `zalo://share?text=${msg}`;
+  const webUrl = `https://zalo.me/share?text=${msg}`;
+
+  window.location.href = appUrl;
+
+  setTimeout(() => {
+    window.open(webUrl, "_blank");
+  }, 500);
+}
+  function shareZaloMsg() { window.open(`https://zalo.me/?src=qr&text=${encodeURIComponent(getMsg())}`, '_blank'); }
+  function shareFacebook() {
+  const url = encodeURIComponent(currentUrl);
+
+  const appUrl = `fb://facewebmodal/f?href=https://www.facebook.com/sharer/sharer.php?u=${url}`;
+  const webUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+
+  window.location.href = appUrl;
+
+  setTimeout(() => {
+    window.open(webUrl, "_blank");
+  }, 500);
+}
+  function shareMessenger() {
+  const url = encodeURIComponent(currentUrl);
+
+  const appUrl = `fb-messenger://share/?link=${url}`;
+  const webUrl = `https://www.facebook.com/dialog/send?link=${url}&app_id=291494419107518&redirect_uri=${url}`;
+
+  window.location.href = appUrl;
+
+  setTimeout(() => {
+    window.open(webUrl, "_blank");
+  }, 500);
+}
 function shareInstagram(){ copyText(currentGuest.url); showToast('Đã copy link! Mở Instagram và dán vào Story 📸'); setTimeout(()=>window.open('https://www.instagram.com/','_blank'),800); }
 function shareTikTok()   { copyText(currentGuest.url); showToast('Đã copy link! Mở TikTok và dán vào bio 🎵'); setTimeout(()=>window.open('https://www.tiktok.com/','_blank'),800); }
 function shareGmail() {
