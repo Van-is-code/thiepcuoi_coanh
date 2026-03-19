@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fsSync = require('fs');
 const fs = require('fs').promises;
 const nodemailer = require('nodemailer');
 const { pool, bootstrapDatabase } = require('./db');
@@ -17,6 +18,39 @@ const basePublicUrl = process.env.BASE_PUBLIC_URL || `http://localhost:${port}`;
 const staticRoot = path.resolve(__dirname, '../vobe2/www.ziuwedding.site');
 const cdnMirrorRoot = path.resolve(__dirname, '../vobe2/w.ladicdn.com');
 const backendRoot = path.resolve(__dirname, '../');
+
+let directRedirectMap = new Map();
+
+function loadDirectRedirectMap() {
+  const startPointsFile = path.join(backendRoot, 'start-points.json');
+  const endPointsFile = path.join(backendRoot, 'end-points.json');
+
+  const map = new Map();
+
+  if (!fsSync.existsSync(startPointsFile) || !fsSync.existsSync(endPointsFile)) {
+    directRedirectMap = map;
+    return;
+  }
+
+  const startPoints = JSON.parse(fsSync.readFileSync(startPointsFile, 'utf8'));
+  const endPoints = JSON.parse(fsSync.readFileSync(endPointsFile, 'utf8'));
+
+  for (const [code, startUrl] of Object.entries(startPoints)) {
+    const targetUrl = endPoints[code];
+    if (!targetUrl) {
+      continue;
+    }
+
+    try {
+      const startPathname = new URL(startUrl).pathname;
+      map.set(startPathname, targetUrl);
+    } catch {
+      // Ignore malformed start URLs to keep startup resilient.
+    }
+  }
+
+  directRedirectMap = map;
+}
 
 // Setup email transporter
 const transporter = nodemailer.createTransport({
@@ -557,6 +591,11 @@ app.get('/thiepmoi/:slug', async (req, res, next) => {
   try {
     const urlPath = `/thiepmoi/${req.params.slug}`;
 
+    const mappedTarget = directRedirectMap.get(urlPath);
+    if (mappedTarget) {
+      return res.redirect(302, mappedTarget);
+    }
+
     const result = await pool.query(
       `SELECT g.id AS guest_id, g.name AS guest_name
        FROM private_invitation pi
@@ -593,6 +632,7 @@ app.use((error, _req, res, _next) => {
 
 async function start() {
   await bootstrapDatabase();
+  loadDirectRedirectMap();
 
   // Start redirect server on port 3001
   const redirectPort = Number(process.env.REDIRECT_PORT || 3001);
