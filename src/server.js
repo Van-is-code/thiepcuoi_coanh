@@ -7,6 +7,7 @@ const fs = require('fs').promises;
 const nodemailer = require('nodemailer');
 const { pool, bootstrapDatabase } = require('./db');
 const { createInvitationPath, buildAbsoluteUrl } = require('./utils');
+const { startRedirectServer } = require('./redirectServer');
 
 const app = express();
 
@@ -592,6 +593,10 @@ app.use((error, _req, res, _next) => {
 
 async function start() {
   await bootstrapDatabase();
+
+  // Start redirect server on port 3001
+  const redirectPort = Number(process.env.REDIRECT_PORT || 3001);
+  startRedirectServer(redirectPort);
 
   app.listen(port, () => {
     console.log(`Server running on ${basePublicUrl}`);
