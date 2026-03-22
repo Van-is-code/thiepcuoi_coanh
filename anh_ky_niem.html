@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<title>💝 Heart Gallery 3D</title>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/"}}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#020010;font-family:'Georgia',serif}
+canvas{display:block;touch-action:none}
+
+#veil{position:fixed;inset:0;background:#020010;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;transition:opacity .9s}
+#veil.out{opacity:0;pointer-events:none}
+.vi{font-size:clamp(52px,10vw,72px);animation:hb 1.1s ease-in-out infinite}
+.vt{color:rgba(255,160,200,.45);font-size:clamp(11px,3vw,14px);margin-top:16px;letter-spacing:2px;text-align:center;padding:0 20px}
+@keyframes hb{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+
+#topbar{position:fixed;top:0;left:0;right:0;z-index:10;pointer-events:none;display:flex;justify-content:space-between;align-items:center;padding:clamp(10px,3vw,16px) clamp(14px,4vw,24px);background:linear-gradient(180deg,rgba(2,0,16,.92),transparent)}
+#title{color:#ff5580;font-size:clamp(13px,3.5vw,20px);letter-spacing:clamp(1px,.5vw,3px);text-shadow:0 0 22px rgba(255,55,110,.85),0 0 60px rgba(255,55,110,.28);font-weight:normal}
+#topright{pointer-events:all;display:flex;align-items:center;gap:8px}
+.badge{color:rgba(255,150,190,.4);font-size:clamp(9px,2.2vw,11px);border:1px solid rgba(255,150,190,.12);background:rgba(8,2,22,.55);padding:5px 11px;border-radius:12px;backdrop-filter:blur(8px);white-space:nowrap}
+.btn{background:rgba(8,2,22,.82);border:1px solid rgba(255,55,120,.38);color:#ff8aaa;padding:clamp(6px,1.5vw,8px) clamp(10px,2.8vw,16px);border-radius:22px;font-size:clamp(10px,2.5vw,12px);cursor:pointer;backdrop-filter:blur(12px);transition:all .22s;white-space:nowrap;font-family:inherit}
+.btn:hover,.btn:active{background:rgba(255,40,100,.22);border-color:rgba(255,55,120,.9);box-shadow:0 0 22px rgba(255,40,100,.38)}
+
+#bottom{position:fixed;bottom:0;left:0;right:0;z-index:10;pointer-events:none;display:flex;flex-direction:column;align-items:center;padding:0 0 clamp(18px,5vw,30px);background:linear-gradient(transparent,rgba(2,0,16,.68));transition:opacity .7s}
+#status{color:rgba(255,165,205,.72);font-size:clamp(11px,2.8vw,13px);margin-bottom:9px;letter-spacing:.4px;text-shadow:0 0 12px rgba(255,55,110,.28)}
+#pb-bg{width:clamp(130px,35vw,190px);height:2px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+#pb{height:100%;width:0%;background:linear-gradient(90deg,#ff1060,#ff69b4);box-shadow:0 0 9px rgba(255,20,100,.85);transition:width .07s linear}
+
+#hint{position:fixed;bottom:clamp(38px,8vw,55px);left:50%;transform:translateX(-50%);color:rgba(255,140,180,.3);font-size:clamp(9px,2.2vw,11px);letter-spacing:.7px;pointer-events:none;z-index:10;opacity:0;transition:opacity 1.2s;white-space:nowrap;text-align:center}
+
+/* zoom indicator */
+#zoom-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,140,180,.0);font-size:clamp(10px,2.5vw,12px);letter-spacing:1px;pointer-events:none;z-index:10;transition:color .4s;text-align:center}
+#zoom-hint.show{color:rgba(255,140,180,.55)}
+
+#uov{position:fixed;inset:0;background:rgba(2,0,16,.78);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:150}
+#uov.show{display:flex}
+#umsg{color:#ff8aaa;font-size:clamp(12px,3vw,14px);letter-spacing:1px;margin-bottom:14px;text-align:center;padding:0 20px}
+#ubar-bg{width:clamp(160px,40vw,220px);height:3px;background:rgba(255,255,255,.1);border-radius:3px}
+#ubar{height:100%;width:0%;background:linear-gradient(90deg,#ff1060,#ff69b4);box-shadow:0 0 9px rgba(255,20,100,.85);transition:width .05s linear}
+
+/* Modal */
+#modal{position:fixed;inset:0;background:rgba(1,0,12,.93);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(20px);padding:20px;gap:18px}
+#modal.show{display:flex}
+#modal-img{max-width:min(88vw,600px);max-height:70vh;object-fit:contain;border-radius:18px;border:1.5px solid rgba(255,100,150,.4);box-shadow:0 0 70px rgba(255,40,100,.32),0 0 160px rgba(255,40,100,.1);transition:opacity .35s;opacity:0}
+#modal-img.loaded{opacity:1}
+#modal-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center}
+#modal-info{color:rgba(255,160,200,.5);font-size:clamp(10px,2.5vw,12px);letter-spacing:.5px}
+#modal-dl{background:rgba(8,2,22,.88);border:1px solid rgba(255,55,120,.5);color:#ff8aaa;padding:10px 24px;border-radius:22px;font-size:clamp(11px,2.8vw,13px);cursor:pointer;backdrop-filter:blur(12px);transition:all .22s;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+#modal-dl:hover{background:rgba(255,40,100,.22);border-color:rgba(255,55,120,.9);box-shadow:0 0 22px rgba(255,40,100,.38)}
+#modal-close{position:fixed;top:clamp(14px,4vw,22px);right:clamp(14px,4vw,22px);background:rgba(8,2,22,.88);border:1px solid rgba(255,55,120,.38);color:#ff8aaa;width:clamp(36px,8vw,44px);height:clamp(36px,8vw,44px);border-radius:50%;font-size:clamp(15px,3.5vw,18px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .22s;backdrop-filter:blur(12px)}
+#modal-close:hover{background:rgba(255,40,100,.22);box-shadow:0 0 20px rgba(255,40,100,.4)}
+#modal-nav{display:flex;gap:12px}
+.nav-btn{background:rgba(8,2,22,.82);border:1px solid rgba(255,55,120,.38);color:#ff8aaa;padding:8px 18px;border-radius:18px;font-size:clamp(11px,2.5vw,13px);cursor:pointer;backdrop-filter:blur(12px);transition:all .22s;font-family:inherit}
+.nav-btn:hover{background:rgba(255,40,100,.22);border-color:rgba(255,55,120,.9)}
+</style>
+</head>
+<body>
+
+<div id="veil"><div class="vi">💝</div><div class="vt">Đang khởi tạo không gian 3D…</div></div>
+
+<div id="topbar">
+  <div id="title">💝 HEART GALLERY</div>
+  <div id="topright">
+    <div class="badge" id="badge">…</div>
+    <label class="btn">📷 Tải ảnh lên<input id="fin" type="file" multiple accept="image/*" style="display:none"></label>
+  </div>
+</div>
+
+<div id="bottom"><div id="status">✨ Đang tạo trái tim…</div><div id="pb-bg"><div id="pb"></div></div></div>
+<div id="hint"></div>
+<div id="zoom-hint">🔍 Phóng to để tách ảnh</div>
+
+<div id="uov"><div id="umsg">📸 Đang xử lý…</div><div id="ubar-bg"><div id="ubar"></div></div></div>
+
+<div id="modal">
+  <button id="modal-close" onclick="closeModal()">✕</button>
+  <img id="modal-img" src="" alt="">
+  <div id="modal-nav">
+    <button class="nav-btn" onclick="navModal(-1)">‹ Trước</button>
+    <button class="nav-btn" onclick="navModal(1)">Sau ›</button>
+  </div>
+  <div id="modal-bar">
+    <span id="modal-info"></span>
+    <a id="modal-dl" download="photo.jpg">⬇ Tải về</a>
+  </div>
+</div>
+
+<canvas id="c"></canvas>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ═══════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════ */
+const isMob   = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||innerWidth<768;
+const DEMO_N  = 5000;          // demo count
+const HS      = 2.1;           // heart scale
+const SPR_SZ  = 0.18;          // fixed sprite size — smaller for 5000 so not too crowded
+const ZOOM_REST    = isMob ? 10.5 : 7.8;
+const DPR     = Math.min(devicePixelRatio, isMob?1.5:2);
+const ANI_MS  = isMob?4200:5600;
+
+/* Atlas 32×32 × 64px */
+const AC=32, AT=64, AN=AC*AC, AUV=1/AC;
+
+/* ═══════════════════════════════════════════
+   RENDERER / SCENE / CAMERA
+═══════════════════════════════════════════ */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:!isMob, powerPreference:'high-performance', alpha:false});
+renderer.setPixelRatio(DPR);
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x020010, 1);
+renderer.sortObjects = true;
+
+const scene = new THREE.Scene();
+const cam   = new THREE.PerspectiveCamera(isMob?60:55, innerWidth/innerHeight, 0.01, 200);
+cam.position.set(0, 0.2, ZOOM_REST);
+
+const ctrl = new OrbitControls(cam, renderer.domElement);
+ctrl.enableDamping   = true;
+ctrl.dampingFactor   = 0.08;
+ctrl.minDistance     = 1.2;
+ctrl.maxDistance     = 35;
+ctrl.enablePan       = false;
+ctrl.target.set(0, -0.1, 0);
+
+/* Stars */
+{
+  const N=2000, p=new Float32Array(N*3);
+  for(let i=0;i<N*3;i++) p[i]=(Math.random()-.5)*130;
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({color:0xffffff,size:.05,transparent:true,opacity:.28,sizeAttenuation:true})));
+}
+
+/* ═══════════════════════════════════════════
+   HEART MATH
+═══════════════════════════════════════════ */
+function hf(x,y,z){
+  const nx=x/HS,ny=y/HS,nz=z/HS,a=nx*nx+2.25*nz*nz+ny*ny-1;
+  return a*a*a - nx*nx*ny*ny*ny - 0.1125*nz*nz*ny*ny*ny;
+}
+function hray(dx,dy,dz){
+  if(hf(dx*.002,dy*.002,dz*.002)>0) return null;
+  let lo=0.002, hi=HS*2.9;
+  if(hf(hi*dx,hi*dy,hi*dz)<0) hi=HS*4;
+  if(hf(hi*dx,hi*dy,hi*dz)<0) return null;
+  for(let i=0;i<58;i++){const m=(lo+hi)*.5; hf(m*dx,m*dy,m*dz)<0?(lo=m):(hi=m)}
+  const t=(lo+hi)*.5; return [dx*t,dy*t,dz*t];
+}
+function hNorm(x,y,z){
+  const e=.001;
+  const nx=hf(x+e,y,z)-hf(x-e,y,z);
+  const ny=hf(x,y+e,z)-hf(x,y-e,z);
+  const nz=hf(x,y,z+e)-hf(x,y,z-e);
+  const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;
+  return[nx/l,ny/l,nz/l];
+}
+
+/* Generate N evenly-distributed points on heart surface (Fibonacci + fill) */
+function genHeartPts(n){
+  const pts=[],nms=[],PHI=(1+Math.sqrt(5))/2;
+  let k=0;
+  while(pts.length<n && k<n*16){
+    const c=1-2*(k+.5)/n, s=Math.sqrt(Math.max(0,1-c*c)), a=2*Math.PI*k/PHI;
+    const p=hray(s*Math.cos(a),c,s*Math.sin(a));
+    if(p){pts.push(p);nms.push(hNorm(p[0],p[1],p[2]))}
+    k++;
+  }
+  while(pts.length<n){
+    const u=Math.random()*2-1,a=Math.random()*Math.PI*2,r=Math.sqrt(Math.max(0,1-u*u));
+    const p=hray(r*Math.cos(a),u,r*Math.sin(a));
+    if(p){pts.push(p);nms.push(hNorm(p[0],p[1],p[2]))}
+  }
+  return{pts,nms};
+}
+
+const ALL = genHeartPts(5000); // pre-generate max
+
+/* ═══════════════════════════════════════════
+   ATLAS HELPERS
+═══════════════════════════════════════════ */
+function rrect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+const PAL=[[338,85,70],[350,82,64],[322,78,62],[305,72,57],[356,90,73],[344,79,66],[330,83,59],[12,76,69],[22,71,63],[348,88,68],[332,80,60],[292,70,52],[260,65,55],[288,68,53],[316,73,56]];
+
+async function buildPlaceholderAtlas(){
+  const SZ=AC*AT, cv=document.createElement('canvas'); cv.width=cv.height=SZ;
+  const ctx=cv.getContext('2d');
+  for(let i=0;i<AN;i++){
+    if(i%64===0) await new Promise(r=>setTimeout(r,0));
+    const col=i%AC,row=Math.floor(i/AC),x=col*AT,y=row*AT,T=AT,R=T*.12;
+    const[h1,s1,l1]=PAL[i%PAL.length],[h2,s2,l2]=PAL[(i+5)%PAL.length];
+    ctx.save(); rrect(ctx,x+2,y+2,T-4,T-4,R); ctx.clip();
+    const g=ctx.createLinearGradient(x,y,x+T,y+T);
+    g.addColorStop(0,`hsl(${h1},${s1}%,${l1+12}%)`);
+    g.addColorStop(.6,`hsl(${h1},${s1}%,${l1}%)`);
+    g.addColorStop(1,`hsl(${h2},${s2}%,${l2-6}%)`);
+    ctx.fillStyle=g; ctx.fillRect(x,y,T,T);
+    const rg=ctx.createRadialGradient(x+T*.4,y+T*.35,T*.05,x+T*.5,y+T*.5,T*.7);
+    rg.addColorStop(0,'rgba(255,255,255,0.22)'); rg.addColorStop(.45,'rgba(0,0,0,0)'); rg.addColorStop(1,'rgba(0,0,0,0.38)');
+    ctx.fillStyle=rg; ctx.fillRect(x,y,T,T); ctx.restore();
+    ctx.strokeStyle='rgba(255,255,255,0.52)'; ctx.lineWidth=2.5;
+    rrect(ctx,x+3,y+3,T-6,T-6,R); ctx.stroke();
+    const fsz=Math.round(T*.28);
+    ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font=`bold ${fsz}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('♥',x+T*.5,y+T*.52);
+  }
+  return cv;
+}
+
+async function paintPhotosToAtlas(cv,files,onProg){
+  const ctx=cv.getContext('2d'); let done=0; const BATCH=isMob?8:18;
+  async function doBatch(s){
+    await Promise.all(Array.from({length:Math.min(BATCH,AN-s)},(_,j)=>new Promise(res=>{
+      const k=s+j, img=new Image();
+      img.onload=()=>{
+        const col=k%AC,row=Math.floor(k/AC),x=col*AT,y=row*AT,T=AT,R=T*.1;
+        ctx.save(); rrect(ctx,x+2,y+2,T-4,T-4,R); ctx.clip();
+        const asp=img.naturalWidth/img.naturalHeight;
+        let sx=0,sy=0,sw=img.naturalWidth,sh=img.naturalHeight;
+        if(asp>1){sw=sh;sx=(img.naturalWidth-sw)/2}else{sh=sw;sy=(img.naturalHeight-sh)/2}
+        ctx.drawImage(img,sx,sy,sw,sh,x,y,T,T); ctx.restore();
+        ctx.strokeStyle='rgba(255,255,255,0.48)'; ctx.lineWidth=2.5;
+        rrect(ctx,x+3,y+3,T-6,T-6,R); ctx.stroke();
+        URL.revokeObjectURL(img.src); done++; if(onProg)onProg(done/AN); res();
+      };
+      img.onerror=()=>{done++;res()};
+      img.src=URL.createObjectURL(files[k%files.length]);
+    })));
+  }
+  for(let b=0;b<AN;b+=BATCH){await doBatch(b); await new Promise(r=>setTimeout(r,0))}
+}
+
+/* ═══════════════════════════════════════════
+   GEOMETRY  — manual quad instancing
+═══════════════════════════════════════════ */
+function buildGeo(count){
+  const V=count*4;
+  const aPos=new Float32Array(V*3), aUV=new Float32Array(V*2), aTile=new Float32Array(V*2);
+  const aSt=new Float32Array(V*3), aTgt=new Float32Array(V*3), aNrm=new Float32Array(V*3);
+  const aDly=new Float32Array(V), aSz=new Float32Array(V);
+  const idx=new Uint32Array(count*6);
+  const centers=new Float32Array(count*3);
+
+  const qx=[-0.5,0.5,0.5,-0.5],qy=[-0.5,-0.5,0.5,0.5],tu=[0,1,1,0],tv=[0,0,1,1];
+
+  const{pts,nms}=ALL;
+
+  for(let i=0;i<count;i++){
+    const vb=i*4;
+    const hp=pts[i%pts.length], hn=nms[i%nms.length];
+    centers[i*3]=hp[0]; centers[i*3+1]=hp[1]; centers[i*3+2]=hp[2];
+
+    /* Scatter from random sphere */
+    const rr=10+Math.random()*8, ru=Math.random()*2-1, rp=Math.random()*Math.PI*2;
+    const rs=Math.sqrt(Math.max(0,1-ru*ru));
+    const sx=rs*Math.cos(rp)*rr, sy=ru*rr, sz=rs*Math.sin(rp)*rr;
+
+    const dl=Math.random()*.62, sf=0.82+Math.random()*.36;
+
+    /* Atlas UV */
+    const ai=i%AN, ac2=ai%AC, ar2=Math.floor(ai/AC);
+    const uO=ac2*AUV, vB=1-ar2*AUV-AUV;
+
+    for(let v=0;v<4;v++){
+      const vi=(vb+v)*3, ui=(vb+v)*2;
+      aPos[vi]=qx[v]; aPos[vi+1]=qy[v]; aPos[vi+2]=0;
+      aUV[ui]=uO+tu[v]*AUV; aUV[ui+1]=vB+tv[v]*AUV;
+      aTile[ui]=tu[v]; aTile[ui+1]=tv[v];
+      aSt[vi]=sx; aSt[vi+1]=sy; aSt[vi+2]=sz;
+      aTgt[vi]=hp[0]; aTgt[vi+1]=hp[1]; aTgt[vi+2]=hp[2];
+      aNrm[vi]=hn[0]; aNrm[vi+1]=hn[1]; aNrm[vi+2]=hn[2];
+      aDly[vb+v]=dl; aSz[vb+v]=sf;
+    }
+    const ib=i*6;
+    idx[ib]=vb;idx[ib+1]=vb+1;idx[ib+2]=vb+2;
+    idx[ib+3]=vb;idx[ib+4]=vb+2;idx[ib+5]=vb+3;
+  }
+
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(aPos, 3));
+  geo.setAttribute('uv',       new THREE.BufferAttribute(aUV,  2));
+  geo.setAttribute('aTile',    new THREE.BufferAttribute(aTile,2));
+  geo.setAttribute('aSt',      new THREE.BufferAttribute(aSt,  3));
+  geo.setAttribute('aTgt',     new THREE.BufferAttribute(aTgt, 3));
+  geo.setAttribute('aNrm',     new THREE.BufferAttribute(aNrm, 3));
+  geo.setAttribute('aDly',     new THREE.BufferAttribute(aDly, 1));
+  geo.setAttribute('aSz',      new THREE.BufferAttribute(aSz,  1));
+  geo.setIndex(new THREE.BufferAttribute(idx,1));
+  return{geo,centers};
+}
+
+/* ═══════════════════════════════════════════
+   SHADERS
+   uExplode 0→1: lerps final resting pos from aTgt (heart) back to aSt (scatter origin)
+   → full explode = exact reverse of the assembly animation
+   Two-pass: BACK pass discards front-facing, FRONT pass discards back-facing
+═══════════════════════════════════════════ */
+function makeVert(isBack){ return `
+uniform float uProg;
+uniform float uBeat;
+uniform float uBase;
+uniform float uExplode;   /* 0=heart  1=fully scattered (reverses assembly) */
+
+attribute vec3  aSt;      /* original random scatter position */
+attribute vec3  aTgt;     /* heart surface position */
+attribute vec3  aNrm;     /* heart surface normal */
+attribute float aDly;
+attribute float aSz;
+attribute vec2  aTile;
+
+varying vec2  vTile;
+varying vec2  vAtlUV;
+varying float vAlpha;
+varying float vViewZ;
+
+float easeOutQuart(float t){ return 1.-pow(clamp(1.-t,0.,1.),4.); }
+float easeInOutQuart(float t){ return t<.5?8.*t*t*t*t:1.-pow(-2.*t+2.,4.)/2.; }
+
+void main(){
+  /* Assembly progress: scatter → heart */
+  float raw = (uProg - aDly) / max(1. - aDly, .001);
+  float et  = easeOutQuart(clamp(raw, 0., 1.));
+
+  /* Explode: heart → scatter origin (exact reverse) */
+  float ex  = easeInOutQuart(clamp(uExplode, 0., 1.));
+  /* Stagger explode by sprite index (using aDly as proxy for variety) */
+  float exDelayed = easeInOutQuart(clamp(uExplode - aDly*0.25, 0., 1.));
+
+  /* Final resting target: heart pos when ex=0, scatter when ex=1 */
+  vec3 restPos = mix(aTgt, aSt, exDelayed);
+
+  /* Current position: lerp from scatter → restPos via assembly progress */
+  vec3 ctr = mix(aSt, restPos, et);
+
+  /* View-space normal for two-pass face separation */
+  vec3  vN     = normalize(normalMatrix * aNrm);
+  float facing = vN.z;
+
+  ${ isBack
+    ? 'if(facing >= -0.08){ gl_Position=vec4(10.,10.,10.,1.); vAlpha=0.; return; }'
+    : 'if(facing <  -0.08){ gl_Position=vec4(10.,10.,10.,1.); vAlpha=0.; return; }'
+  }
+
+  float edgeFade = smoothstep(0.0, 0.20, abs(facing));
+
+  /* During explode: sprites gradually become fully opaque (no silhouette fade) */
+  float explodeFade = mix(0.5 + 0.5*edgeFade, 1.0, ex);
+
+  vec4 vc  = modelViewMatrix * vec4(ctr, 1.0);
+  vc.xy   += position.xy * (uBase * aSz * uBeat);
+
+  gl_Position = projectionMatrix * vc;
+  vTile   = aTile;
+  vAtlUV  = uv;
+  vAlpha  = clamp(et * 2.2, 0., 1.) * explodeFade;
+  vViewZ  = vc.z;
+}`; }
+
+const FRAG = `
+uniform sampler2D uAtlas;
+varying vec2  vTile;
+varying vec2  vAtlUV;
+varying float vAlpha;
+varying float vViewZ;
+void main(){
+  vec2  c = vTile - .5;
+  vec2  d = abs(c) - .435;
+  float r = length(max(d,0.));
+  if(r > .08) discard;
+  vec4 col = texture2D(uAtlas, vAtlUV);
+  float edge   = max(abs(c.x),abs(c.y));
+  float border = smoothstep(.385,.415,edge);
+  col.rgb = mix(col.rgb, vec3(1.), border*.52);
+  float ca = smoothstep(.08,.018,r);
+  col.rgb *= clamp(1. + (-vViewZ - 3.)*.01, .82, 1.22);
+  gl_FragColor = vec4(col.rgb, col.a * vAlpha * ca);
+}`;
+
+/* ═══════════════════════════════════════════
+   SCENE STATE
+═══════════════════════════════════════════ */
+const group = new THREE.Group();
+group.position.y = -0.18;
+scene.add(group);
+
+let matB=null, matF=null, meshB=null, meshF=null;
+let atlasTex=null, glowMesh=null;
+let spriteCenters=null, curFiles=null, dispCount=DEMO_N;
+let assembled=false;
+let isHolding=false;          // true = finger/mouse physically down
+let explodeVal=0;             // current smooth explode value 0→1
+let explodeTarget=0;          // target explode value driven by camera distance
+
+function makeMat(vert){
+  return new THREE.ShaderMaterial({
+    uniforms:{uProg:{value:0},uBeat:{value:1},uBase:{value:SPR_SZ},uExplode:{value:0},uAtlas:{value:atlasTex}},
+    vertexShader:vert, fragmentShader:FRAG,
+    transparent:true, depthWrite:false, side:THREE.DoubleSide,
+  });
+}
+
+function rebuildMesh(count){
+  dispCount=count;
+  if(meshB){group.remove(meshB);meshB.geometry.dispose();matB.dispose()}
+  if(meshF){group.remove(meshF);meshF.geometry.dispose();matF.dispose()}
+
+  const{geo,centers}=buildGeo(count);
+  spriteCenters=centers;
+
+  matB=makeMat(makeVert(true));
+  matF=makeMat(makeVert(false));
+  matB.uniforms.uAtlas.value=atlasTex;
+  matF.uniforms.uAtlas.value=atlasTex;
+
+  meshB=new THREE.Mesh(geo,matB); meshB.renderOrder=0;
+  meshF=new THREE.Mesh(geo,matF); meshF.renderOrder=1;
+  group.add(meshB); group.add(meshF);
+}
+
+function syncUniforms(prog,beat,explode){
+  if(!matB||!matF) return;
+  matB.uniforms.uProg.value=prog;  matF.uniforms.uProg.value=prog;
+  matB.uniforms.uBeat.value=beat;  matF.uniforms.uBeat.value=beat;
+  matB.uniforms.uExplode.value=explode; matF.uniforms.uExplode.value=explode;
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+async function init(){
+  document.getElementById('status').textContent='⚙️ Đang tạo ảnh mẫu...';
+  const ac = await buildPlaceholderAtlas();
+  atlasTex = new THREE.CanvasTexture(ac);
+  atlasTex.minFilter=THREE.LinearFilter; atlasTex.generateMipmaps=false;
+
+  glowMesh=new THREE.Mesh(new THREE.SphereGeometry(3.6,24,24),
+    new THREE.MeshBasicMaterial({color:0xff1060,transparent:true,opacity:.02,side:THREE.BackSide,depthWrite:false}));
+  group.add(glowMesh);
+  group.add(new THREE.Mesh(new THREE.SphereGeometry(4.8,18,18),
+    new THREE.MeshBasicMaterial({color:0x8800cc,transparent:true,opacity:.009,side:THREE.BackSide,depthWrite:false})));
+
+  rebuildMesh(DEMO_N);
+
+  document.getElementById('badge').textContent=DEMO_N.toLocaleString()+' ảnh';
+  document.getElementById('hint').textContent = isMob
+    ? '👆 Kéo xoay · Pinch zoom · Tap để xem ảnh'
+    : '🖱 Kéo xoay · Cuộn zoom · Click để xem ảnh';
+  document.getElementById('veil').classList.add('out');
+  t0=performance.now(); loop();
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATION LOOP
+═══════════════════════════════════════════ */
+let t0=0, _done=false;
+const statusEl=document.getElementById('status'), pbEl=document.getElementById('pb'),
+      bottomEl=document.getElementById('bottom'), hintEl=document.getElementById('hint'),
+      zoomHint=document.getElementById('zoom-hint');
+let zoomHintTimer=null;
+
+function loop(){
+  requestAnimationFrame(loop);
+  if(!matB||!matF) return;
+
+  const now=performance.now();
+  const prog=Math.min(1,(now-t0)/ANI_MS);
+
+  /* ── Explode based on camera distance ─────────────────────
+     Rest distance = ZOOM_REST (~7.8).
+     Explode starts at 95% of rest, reaches full (1.0) at 35% of rest.
+     So zooming from 7.8 → 2.7 gives full explode = sprites scatter to origins.
+  ──────────────────────────────────────────────────────────── */
+  const camDist = cam.position.distanceTo(ctrl.target);
+  const ratio   = camDist / ZOOM_REST;               // 1=rest, <1=zoomed in
+  explodeTarget = THREE.MathUtils.clamp((0.95 - ratio) / 0.60, 0, 1);
+  const lerpSpeed = 0.055;
+  explodeVal += (explodeTarget - explodeVal) * lerpSpeed;
+
+  /* Show zoom hint when first exploding */
+  if(explodeVal>0.05 && explodeTarget>0.1){
+    zoomHint.classList.add('show');
+    clearTimeout(zoomHintTimer);
+    zoomHintTimer=setTimeout(()=>zoomHint.classList.remove('show'),2200);
+  }
+
+  /* ── Heartbeat ───────────────────────── */
+  let beat=1;
+  if(assembled && explodeVal<0.05){
+    const b=Math.sin(now*.00115), b2=b*b*Math.max(0,b);
+    beat=1+.04*b2;
+    if(glowMesh){glowMesh.material.opacity=.015+.04*b2; glowMesh.scale.setScalar(1+.05*b2)}
+  }
+
+  syncUniforms(prog, beat, explodeVal);
+
+  /* ── Progress bar ── */
+  if(!_done){
+    pbEl.style.width=(prog*100)+'%';
+    if(prog>.04) statusEl.textContent=`💝 Đang hình thành... ${Math.round(prog*100)}%`;
+    if(prog>=1){
+      _done=true; assembled=true;
+      statusEl.textContent=`✨ ${dispCount.toLocaleString()} ảnh hoàn thành!`;
+      setTimeout(()=>{
+        bottomEl.style.opacity='0';
+        setTimeout(()=>{hintEl.style.opacity='1';setTimeout(()=>{hintEl.style.opacity='0'},7000)},700);
+      },1600);
+    }
+  }
+
+  /* ── Auto-rotate: always on, pause only while holding ── */
+  if(assembled && !isHolding) group.rotation.y += 0.003;
+
+  ctrl.update();
+  renderer.render(scene,cam);
+}
+
+/* ═══════════════════════════════════════════
+   UPLOAD
+═══════════════════════════════════════════ */
+document.getElementById('fin').addEventListener('change', async e=>{
+  const files=[...e.target.files]; if(!files.length) return;
+  curFiles=files;
+
+  const ov=document.getElementById('uov'), um=document.getElementById('umsg'), ub=document.getElementById('ubar');
+  ov.classList.add('show');
+  um.textContent=`📸 Đang xử lý ${files.length} ảnh...`; ub.style.width='0%';
+
+  const newCount = Math.min(files.length, 5000);
+
+  /* Build atlas with real photos */
+  const ac = await buildPlaceholderAtlas();
+  await paintPhotosToAtlas(ac, files, p=>{
+    ub.style.width=(p*100)+'%';
+    if(Math.round(p*100)%10===0) um.textContent=`📸 ${Math.round(p*100)}% hoàn thành...`;
+  });
+  atlasTex.image=ac; atlasTex.needsUpdate=true;
+
+  assembled=false; _done=false;
+  rebuildMesh(newCount);
+  t0=performance.now();
+  bottomEl.style.opacity='1'; pbEl.style.width='0%';
+  statusEl.textContent='💝 Đang hình thành...';
+
+  const rpt=Math.ceil(newCount/files.length);
+  document.getElementById('badge').textContent=
+    newCount.toLocaleString()+' vị trí · '+files.length+' ảnh'+(rpt>1?` (×${rpt})`:'');
+
+  um.textContent='✅ Hoàn thành! 💝'; setTimeout(()=>ov.classList.remove('show'),1200);
+});
+
+/* ═══════════════════════════════════════════
+   POINTER / HOLD DETECTION
+   isHolding = true ONLY while physical contact is maintained
+═══════════════════════════════════════════ */
+let pdX=0, pdY=0, pdT=0;
+
+function onDown(cx,cy){ isHolding=true; pdX=cx; pdY=cy; pdT=Date.now(); }
+function onUp(cx,cy){
+  isHolding=false;
+  const dx=cx-pdX, dy=cy-pdY;
+  const moved = dx*dx+dy*dy > 180;
+  const longPress = Date.now()-pdT > 480;
+  if(!moved && !longPress) trySelect(cx,cy);
+}
+
+canvas.addEventListener('mousedown',  e=>onDown(e.clientX,e.clientY),  {passive:true});
+canvas.addEventListener('mouseup',    e=>onUp(e.clientX,e.clientY),    {passive:true});
+canvas.addEventListener('mouseleave', ()=>{isHolding=false},           {passive:true});
+canvas.addEventListener('touchstart', e=>{const t=e.touches[0]; onDown(t.clientX,t.clientY)},{passive:true});
+canvas.addEventListener('touchend',   e=>{
+  if(e.changedTouches.length){const t=e.changedTouches[0]; onUp(t.clientX,t.clientY)}
+},{passive:true});
+canvas.addEventListener('touchcancel',()=>{isHolding=false},{passive:true});
+
+/* Also hook OrbitControls for multi-touch (pinch-zoom) */
+ctrl.addEventListener('start', ()=>{ isHolding=true });
+ctrl.addEventListener('end',   ()=>{ isHolding=false });
+
+/* ═══════════════════════════════════════════
+   RAYCAST — CLICK TO SELECT SPRITE
+═══════════════════════════════════════════ */
+function trySelect(cx,cy){
+  if(!assembled||!spriteCenters||!matF) return;
+
+  const ndc=new THREE.Vector2((cx/innerWidth)*2-1, -(cy/innerHeight)*2+1);
+  const ray=new THREE.Raycaster();
+  ray.setFromCamera(ndc,cam);
+  group.updateMatrixWorld(true);
+
+  /* Threshold grows when exploded so you can still tap spread-out sprites */
+  const baseThr = SPR_SZ * (1.4 + explodeVal * 3.0);
+  let best=Infinity, bestIdx=-1;
+  const tmp=new THREE.Vector3();
+  const{pts,nms}=ALL;
+
+  /* Ease matches shader: easeInOutQuart */
+  function eioq(t){ return t<.5?8*t*t*t*t:1-Math.pow(-2*t+2,4)/2; }
+  const ex = eioq(Math.min(1, explodeVal));
+
+  for(let i=0;i<dispCount;i++){
+    const hp=pts[i%pts.length], hn=nms[i%nms.length];
+    /* Mirror shader: restPos = mix(aTgt, aSt, ex) — but aSt is random per sprite,
+       so use approximate: push along normal by explode amount as fallback */
+    // Approximate exploded center = heart pos + normal * (scatter_avg * ex)
+    const scatterScale = ex * 12; // avg scatter radius ≈ 14, approximate
+    tmp.set(
+      hp[0] + hn[0]*scatterScale,
+      hp[1] + hn[1]*scatterScale,
+      hp[2] + hn[2]*scatterScale
+    );
+    group.localToWorld(tmp);
+    if(ray.ray.direction.dot(tmp.clone().sub(ray.ray.origin))<0) continue;
+    const dist=ray.ray.distanceToPoint(tmp);
+    if(dist<baseThr && dist<best){ best=dist; bestIdx=i; }
+  }
+  if(bestIdx>=0) showModal(bestIdx);
+}
+
+/* ═══════════════════════════════════════════
+   IMAGE MODAL
+═══════════════════════════════════════════ */
+let modalIdx = -1;
+let blobUrl  = '';
+
+function showModal(spriteIdx){
+  modalIdx=spriteIdx;
+  _renderModal();
+  document.getElementById('modal').classList.add('show');
+}
+
+function _renderModal(){
+  const imgEl=document.getElementById('modal-img');
+  const dlEl =document.getElementById('modal-dl');
+  const info =document.getElementById('modal-info');
+
+  if(blobUrl){ URL.revokeObjectURL(blobUrl); blobUrl=''; }
+  imgEl.classList.remove('loaded');
+
+  if(curFiles&&curFiles.length>0){
+    const fi  = modalIdx % curFiles.length;
+    const f   = curFiles[fi];
+    const url = URL.createObjectURL(f);
+    blobUrl   = url;
+    imgEl.src = url;
+    dlEl.href = url;
+    dlEl.download = f.name || `photo_${fi+1}.jpg`;
+    info.textContent = `Ảnh ${fi+1} / ${curFiles.length}`;
+  } else {
+    /* Render placeholder tile */
+    const ac = atlasTex.image; if(!ac) return;
+    const ai=modalIdx%AN, ac2=ai%AC, ar2=Math.floor(ai/AC);
+    const cv=document.createElement('canvas'); cv.width=cv.height=256;
+    const ctx=cv.getContext('2d');
+    ctx.drawImage(ac, ac2*AT, ar2*AT, AT, AT, 0, 0, 256, 256);
+    const url=cv.toDataURL('image/png');
+    imgEl.src=url; dlEl.href=url; dlEl.download=`tile_${modalIdx+1}.png`;
+    info.textContent=`Ảnh ${modalIdx+1} / ${dispCount}`;
+  }
+  imgEl.onload=()=>imgEl.classList.add('loaded');
+}
+
+window.navModal = function(dir){
+  if(!assembled) return;
+  const total = curFiles ? curFiles.length : dispCount;
+  modalIdx = ((modalIdx + dir) % total + total) % total;
+  _renderModal();
+};
+
+window.closeModal = function(){
+  document.getElementById('modal').classList.remove('show');
+  const imgEl=document.getElementById('modal-img');
+  imgEl.src=''; imgEl.classList.remove('loaded');
+  if(blobUrl){ URL.revokeObjectURL(blobUrl); blobUrl=''; }
+};
+
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeModal();
+  if(e.key==='ArrowRight') navModal(1);
+  if(e.key==='ArrowLeft')  navModal(-1);
+});
+
+/* ═══════════════════════════════════════════
+   RESIZE
+═══════════════════════════════════════════ */
+addEventListener('resize',()=>{
+  cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+init();
+</script>
+</body>
+</html>

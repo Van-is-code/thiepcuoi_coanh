@@ -95,6 +95,10 @@ app.get(['/ngoc-anh', '/ngoc-anh/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'vobe2.html'));
 });
 
+app.get(['/ky-niem-22-03', '/ky-niem-22-03/'], (_, res) => {
+  res.sendFile(path.join(backendRoot, 'anh_ky_niem.html'));
+});
+
 app.get(['/vanphong-ngocanh', '/vanphong-ngocanh/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'vobe2.html'));
 });
