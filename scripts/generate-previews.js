@@ -6,8 +6,8 @@ const root = path.resolve(__dirname, '..');
 const jsonPath = path.join(root, 'wedding-photos.json');
 const outRoot = path.join(root, 'vobe2', 'www.ziuwedding.site', 'images', '_previews');
 
-const QUALITY = 62;
-const MAX_WIDTH = 900;
+const QUALITY = 36;
+const MAX_WIDTH = 560;
 
 function toPosix(p) {
   return p.split(path.sep).join('/');
@@ -61,7 +61,7 @@ async function main() {
       await sharp(srcAbs)
         .rotate()
         .resize({ width: MAX_WIDTH, withoutEnlargement: true })
-        .webp({ quality: QUALITY, effort: 4 })
+        .webp({ quality: QUALITY, effort: 6 })
         .toFile(outAbs);
 
       const outRel = path.relative(root, outAbs);

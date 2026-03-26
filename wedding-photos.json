@@ -4521,9 +4521,9 @@
     ],
     "previewConfig": {
         "format": "webp",
-        "quality": 62,
-        "maxWidth": 900,
-        "generatedAt": "2026-03-26T13:59:48.003Z",
+        "quality": 36,
+        "maxWidth": 560,
+        "generatedAt": "2026-03-26T14:35:57.075Z",
         "note": "Grid uses preview; lightbox and download use original src."
     }
 }

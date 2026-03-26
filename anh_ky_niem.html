@@ -948,8 +948,7 @@ let visiblePhotos = []; // filtered list
 let lbIdx = 0;
 let renderToken = 0;
 let hasVideo = false;
-const IMAGE_META = new Map();
-const INITIAL_PRELOAD_COUNT = 24;
+const INITIAL_EAGER_COUNT = 4;
 
 function getSafeSrc(path) {
   return encodeURI(path);
@@ -967,55 +966,6 @@ function setGridStatus(message = '') {
 function setGridPercent(value) {
   const safe = Math.max(0, Math.min(100, Math.round(value)));
   gridPercent.textContent = `${safe}%`;
-}
-
-function preloadImageMeta(src) {
-  if (IMAGE_META.has(src)) return Promise.resolve(IMAGE_META.get(src));
-
-  return new Promise(resolve => {
-    const probe = new Image();
-    probe.decoding = 'async';
-    probe.onload = () => {
-      const meta = {
-        width: probe.naturalWidth || 0,
-        height: probe.naturalHeight || 0
-      };
-      IMAGE_META.set(src, meta);
-      resolve(meta);
-    };
-    probe.onerror = () => {
-      const meta = { width: 0, height: 0 };
-      IMAGE_META.set(src, meta);
-      resolve(meta);
-    };
-    probe.src = src;
-  });
-}
-
-async function preloadImagesWithProgress(photos, onProgress) {
-  if (!photos.length) {
-    onProgress?.(100, 0, 0);
-    return;
-  }
-
-  let done = 0;
-  const total = photos.length;
-  await Promise.allSettled(
-    photos.map(async p => {
-      await preloadImageMeta(getSafeSrc(p.preview || p.src));
-      done += 1;
-      onProgress?.((done / total) * 100, done, total);
-    })
-  );
-}
-
-function backgroundPreloadImages(photos, token) {
-  photos.forEach((p, idx) => {
-    setTimeout(() => {
-      if (token !== renderToken) return;
-      preloadImageMeta(getSafeSrc(p.preview || p.src));
-    }, idx * 25);
-  });
 }
 
 function updateVideoCounter(count) {
@@ -1081,18 +1031,8 @@ async function buildGrid(photos) {
   grid.classList.add('is-loading');
   grid.classList.add('hidden');
   gridLoader.classList.add('show');
-  setGridStatus('Đang chuẩn bị ảnh...');
-  setGridPercent(0);
-
-  const firstBatch = photos.slice(0, INITIAL_PRELOAD_COUNT);
-  const remainBatch = photos.slice(INITIAL_PRELOAD_COUNT);
-
-  await preloadImagesWithProgress(firstBatch, (pct, done, total) => {
-    if (token !== renderToken) return;
-    setGridPercent(pct);
-    setGridStatus(`Đang chuẩn bị ảnh... (${done}/${total})`);
-  });
-  if (token !== renderToken) return;
+  setGridStatus('Đang hiển thị album...');
+  setGridPercent(100);
 
   grid.innerHTML = '';
   const frag = document.createDocumentFragment();
@@ -1102,14 +1042,10 @@ async function buildGrid(photos) {
     item.className = 'photo-item';
     item.dataset.idx = i;
     const previewSrc = getSafeSrc(p.preview || p.src);
-    const meta = IMAGE_META.get(previewSrc);
-    const sizeAttrs = meta && meta.width > 0 && meta.height > 0
-      ? ` width="${meta.width}" height="${meta.height}"`
-      : '';
-    const loadingMode = i < INITIAL_PRELOAD_COUNT ? 'eager' : 'lazy';
-    const priority = i < 12 ? 'high' : 'auto';
+    const loadingMode = i < INITIAL_EAGER_COUNT ? 'eager' : 'lazy';
+    const priority = i < INITIAL_EAGER_COUNT ? 'high' : 'auto';
     item.innerHTML = `
-        <img src="${previewSrc}"${sizeAttrs}
+        <img src="${previewSrc}"
            alt="${p.alt || `Ảnh ${p.id}`}" loading="${loadingMode}" decoding="async" fetchpriority="${priority}">
       <div class="photo-overlay">
         <div class="photo-meta">
@@ -1132,14 +1068,11 @@ async function buildGrid(photos) {
       setGridPercent(100);
     }
   });
-
-  // Continue caching remaining images in background for smoother scrolling/opening.
-  backgroundPreloadImages(remainBatch, token);
 }
 
 async function loadPhotos() {
   try {
-    const res = await fetch('./wedding-photos.json', { cache: 'no-store' });
+    const res = await fetch('./wedding-photos.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     PHOTOS = Array.isArray(data.photos)
