@@ -566,130 +566,163 @@ video {
 }
 
 /* ══════════════════════════════════════
-   LIGHTBOX
+   LIGHTBOX — mobile-first redesign
 ══════════════════════════════════════ */
 #lightbox {
   position: fixed; inset: 0;
   z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(20,6,8,0.93);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  display: grid;
+  grid-template-rows: 52px 1fr 72px;
+  background: rgba(10,3,4,0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s;
-  padding: 1rem;
+  transition: opacity 0.3s;
+  overscroll-behavior: contain;
+  touch-action: pan-y pinch-zoom;
 }
-
 #lightbox.open {
   opacity: 1;
   pointer-events: all;
 }
 
-.lb-content {
-  position: relative;
-  max-width: min(90vw, 1000px);
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-#lb-img {
-  max-width: 100%;
-  max-height: 78vh;
-  object-fit: contain;
-  border-radius: 6px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 0 3px rgba(181,25,42,0.35);
-  transform: scale(0.9);
-  transition: transform 0.4s cubic-bezier(.23,1,.32,1);
-}
-#lightbox.open #lb-img { transform: scale(1); }
-
-/* Toolbar */
-.lb-toolbar {
+.lb-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  gap: 0.75rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
 }
-
 .lb-counter {
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: rgba(255,255,255,0.5);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.45);
+  font-weight: 600;
   text-transform: uppercase;
 }
-
-.lb-actions {
-  display: flex;
-  gap: 0.5rem;
+.lb-close-btn {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.8);
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
 }
+.lb-close-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.lb-close-btn:active { transform: scale(0.92); }
 
-.lb-btn {
+.lb-img-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  height: 36px;
-  padding: 0 1rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  transition: all 0.25s;
+  overflow: hidden;
 }
+#lb-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  transition: opacity 0.22s ease, transform 0.38s cubic-bezier(.23,1,.32,1);
+  transform: scale(0.95);
+  display: block;
+  padding: 0 56px;
+}
+#lightbox.open #lb-img { transform: scale(1); }
+#lb-img.fading { opacity: 0; transform: scale(0.95); }
 
-.lb-close {
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.8);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-.lb-close:hover {
-  background: rgba(255,255,255,0.2);
-  color: white;
-}
-
-.lb-download {
-  background: var(--red);
-  color: white;
-  box-shadow: 0 4px 14px rgba(181,25,42,0.5);
-}
-.lb-download:hover {
-  background: var(--red-light);
-  box-shadow: 0 6px 18px rgba(181,25,42,0.6);
-  transform: translateY(-1px);
-}
-
-/* Arrow buttons */
 .lb-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   width: 44px; height: 44px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: 50%;
-  color: white;
-  font-size: 1.3rem;
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.22s, border-color 0.22s, transform 0.15s;
+  z-index: 5;
+  flex-shrink: 0;
+}
+.lb-arrow:hover  { background: var(--red); border-color: var(--red); }
+.lb-arrow:active { transform: translateY(-50%) scale(0.9); }
+.lb-prev { left: 6px; }
+.lb-next { right: 6px; }
+
+.lb-bottombar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.25s;
-  z-index: 10;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  overflow: hidden;
 }
-.lb-arrow:hover { background: var(--red); border-color: var(--red); }
-.lb-prev { left: -3.5rem; }
-.lb-next { right: -3.5rem; }
+.lb-names {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.lb-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.lb-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 40px;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(181,25,42,0.45);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.lb-download-btn:hover  { background: var(--red-light); box-shadow: 0 6px 20px rgba(181,25,42,0.55); }
+.lb-download-btn:active { transform: scale(0.96); }
+.lb-download-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
 
-@media (max-width: 640px) {
-  .lb-prev { left: 0; bottom: 0; top: auto; transform: none; }
-  .lb-next { right: 0; bottom: 0; top: auto; transform: none; }
-  .lb-content { gap: 0.75rem; }
+@media (max-width: 480px) {
+  #lb-img { padding: 0 48px; }
+  .lb-arrow { width: 40px; height: 40px; font-size: 1.2rem; }
+  .lb-prev { left: 4px; }
+  .lb-next { right: 4px; }
+  .lb-download-btn span { display: none; }
+  .lb-download-btn { padding: 0 0.85rem; }
 }
 
 /* ══════════════════════════════════════
@@ -869,7 +902,7 @@ video {
   <div class="photo-grid" id="photoGrid"></div>
   <div id="gridLoader" class="grid-loader" aria-live="polite">
     <div class="grid-loader-ring"></div>
-    <p>Đang tải ảnh...</p>
+    <p>Đang tải ảnh... <span id="gridPercent">0%</span></p>
   </div>
   <p id="gridStatus" class="grid-status" aria-live="polite"></p>
 </section>
@@ -878,22 +911,26 @@ video {
 <button id="backBtn" onclick="document.getElementById('album').scrollIntoView({behavior:'smooth'})" title="Lên đầu album" aria-label="Lên đầu album">↑</button>
 
 <!-- ── LIGHTBOX ── -->
-<div id="lightbox" onclick="lbClickBg(event)" role="dialog" aria-modal="true">
-  <div class="lb-content">
-    <img id="lb-img" src="" alt="Ảnh phóng to">
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Xem ảnh phóng to">
+  <div class="lb-topbar">
+    <span class="lb-counter" id="lb-counter"></span>
+    <button class="lb-close-btn" onclick="closeLb()" aria-label="Đóng">✕</button>
+  </div>
 
-    <div class="lb-toolbar">
-      <span class="lb-counter" id="lb-counter"></span>
-      <div class="lb-actions">
-        <a id="lb-dl" class="lb-btn lb-download" download>
-          ⬇ Tải về
-        </a>
-        <button class="lb-btn lb-close" onclick="closeLb()">✕ Đóng</button>
-      </div>
+  <div class="lb-img-wrap" id="lb-img-wrap">
+    <button class="lb-arrow lb-prev" onclick="stepLb(-1)" aria-label="Ảnh trước">&#8249;</button>
+    <img id="lb-img" src="" alt="Ảnh phóng to" draggable="false">
+    <button class="lb-arrow lb-next" onclick="stepLb(1)" aria-label="Ảnh tiếp">&#8250;</button>
+  </div>
+
+  <div class="lb-bottombar">
+    <span class="lb-names" id="lb-names"></span>
+    <div class="lb-actions">
+      <a id="lb-dl" class="lb-download-btn" download>
+        <svg viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5"/><path d="M5 19h14"/></svg>
+        <span>Tải về</span>
+      </a>
     </div>
-
-    <button class="lb-arrow lb-prev" onclick="stepLb(-1)" aria-label="Ảnh trước">‹</button>
-    <button class="lb-arrow lb-next" onclick="stepLb(1)"  aria-label="Ảnh tiếp">›</button>
   </div>
 </div>
 
@@ -906,11 +943,13 @@ let PHOTOS = [];
 const grid = document.getElementById('photoGrid');
 const gridLoader = document.getElementById('gridLoader');
 const gridStatus = document.getElementById('gridStatus');
+const gridPercent = document.getElementById('gridPercent');
 let visiblePhotos = []; // filtered list
 let lbIdx = 0;
 let renderToken = 0;
 let hasVideo = false;
 const IMAGE_META = new Map();
+const INITIAL_PRELOAD_COUNT = 24;
 
 function getSafeSrc(path) {
   return encodeURI(path);
@@ -923,6 +962,11 @@ function updateCounters(count) {
 
 function setGridStatus(message = '') {
   gridStatus.textContent = message;
+}
+
+function setGridPercent(value) {
+  const safe = Math.max(0, Math.min(100, Math.round(value)));
+  gridPercent.textContent = `${safe}%`;
 }
 
 function preloadImageMeta(src) {
@@ -948,10 +992,30 @@ function preloadImageMeta(src) {
   });
 }
 
-async function preloadAllImages(photos) {
+async function preloadImagesWithProgress(photos, onProgress) {
+  if (!photos.length) {
+    onProgress?.(100, 0, 0);
+    return;
+  }
+
+  let done = 0;
+  const total = photos.length;
   await Promise.allSettled(
-    photos.map(p => preloadImageMeta(getSafeSrc(p.src)))
+    photos.map(async p => {
+      await preloadImageMeta(getSafeSrc(p.preview || p.src));
+      done += 1;
+      onProgress?.((done / total) * 100, done, total);
+    })
   );
+}
+
+function backgroundPreloadImages(photos, token) {
+  photos.forEach((p, idx) => {
+    setTimeout(() => {
+      if (token !== renderToken) return;
+      preloadImageMeta(getSafeSrc(p.preview || p.src));
+    }, idx * 25);
+  });
 }
 
 function updateVideoCounter(count) {
@@ -1017,9 +1081,17 @@ async function buildGrid(photos) {
   grid.classList.add('is-loading');
   grid.classList.add('hidden');
   gridLoader.classList.add('show');
-  setGridStatus('Đang tải ảnh...');
+  setGridStatus('Đang chuẩn bị ảnh...');
+  setGridPercent(0);
 
-  await preloadAllImages(photos);
+  const firstBatch = photos.slice(0, INITIAL_PRELOAD_COUNT);
+  const remainBatch = photos.slice(INITIAL_PRELOAD_COUNT);
+
+  await preloadImagesWithProgress(firstBatch, (pct, done, total) => {
+    if (token !== renderToken) return;
+    setGridPercent(pct);
+    setGridStatus(`Đang chuẩn bị ảnh... (${done}/${total})`);
+  });
   if (token !== renderToken) return;
 
   grid.innerHTML = '';
@@ -1029,15 +1101,15 @@ async function buildGrid(photos) {
     const item = document.createElement('div');
     item.className = 'photo-item';
     item.dataset.idx = i;
-    const src = getSafeSrc(p.src);
-    const meta = IMAGE_META.get(src);
+    const previewSrc = getSafeSrc(p.preview || p.src);
+    const meta = IMAGE_META.get(previewSrc);
     const sizeAttrs = meta && meta.width > 0 && meta.height > 0
       ? ` width="${meta.width}" height="${meta.height}"`
       : '';
-    const loadingMode = 'eager';
+    const loadingMode = i < INITIAL_PRELOAD_COUNT ? 'eager' : 'lazy';
     const priority = i < 12 ? 'high' : 'auto';
     item.innerHTML = `
-      <img src="${src}"${sizeAttrs}
+        <img src="${previewSrc}"${sizeAttrs}
            alt="${p.alt || `Ảnh ${p.id}`}" loading="${loadingMode}" decoding="async" fetchpriority="${priority}">
       <div class="photo-overlay">
         <div class="photo-meta">
@@ -1057,8 +1129,12 @@ async function buildGrid(photos) {
       grid.classList.remove('hidden');
       gridLoader.classList.remove('show');
       setGridStatus('');
+      setGridPercent(100);
     }
   });
+
+  // Continue caching remaining images in background for smoother scrolling/opening.
+  backgroundPreloadImages(remainBatch, token);
 }
 
 async function loadPhotos() {
@@ -1070,6 +1146,7 @@ async function loadPhotos() {
       ? data.photos.map(p => ({
           id: p.id,
           cat: p.cat || p.category,
+          preview: p.preview,
           src: p.src,
           alt: p.alt
         }))
@@ -1115,13 +1192,18 @@ function renderLb() {
   const p = visiblePhotos[lbIdx];
   const src = getSafeSrc(p.src);
   const img = document.getElementById('lb-img');
-  img.style.opacity = 0;
-  img.src = src;
-  img.onload = () => { img.style.transition = 'opacity 0.25s'; img.style.opacity = 1; };
+
+  img.classList.add('fading');
+  setTimeout(() => {
+    img.src = src;
+    img.onload = () => img.classList.remove('fading');
+    img.onerror = () => img.classList.remove('fading');
+  }, 160);
+
   document.getElementById('lb-dl').href = src;
   document.getElementById('lb-dl').setAttribute('download', `wedding-photo-${p.id}.jpg`);
-  document.getElementById('lb-counter').textContent =
-    `${lbIdx + 1} / ${visiblePhotos.length}`;
+  document.getElementById('lb-counter').textContent = `${lbIdx + 1} / ${visiblePhotos.length}`;
+  document.getElementById('lb-names').textContent = p.alt || '';
 }
 
 function closeLb() {
@@ -1134,9 +1216,24 @@ function stepLb(dir) {
   renderLb();
 }
 
-function lbClickBg(e) {
-  if (e.target === document.getElementById('lightbox')) closeLb();
-}
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox') ||
+      e.target === document.getElementById('lb-img-wrap')) {
+    closeLb();
+  }
+});
+
+(function () {
+  let tx0 = 0;
+  const lb = document.getElementById('lightbox');
+  lb.addEventListener('touchstart', e => {
+    tx0 = e.changedTouches[0].clientX;
+  }, { passive: true });
+  lb.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx0;
+    if (Math.abs(dx) > 50) stepLb(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
 
 document.addEventListener('keydown', e => {
   if (!document.getElementById('lightbox').classList.contains('open')) return;
