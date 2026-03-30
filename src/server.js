@@ -67,6 +67,15 @@ const transporter = nodemailer.createTransport({
 app.use(cors());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  if (req.path.endsWith('.m3u8')) {
+    res.type('application/vnd.apple.mpegurl');
+  } else if (req.path.endsWith('.ts')) {
+    res.type('video/mp2t');
+  }
+  next();
+});
+
 app.use('/w.ladicdn.com', express.static(cdnMirrorRoot));
 app.use(express.static(staticRoot));
 app.use(express.static(backendRoot)); // Serve floating-widget.js and other root files
@@ -96,6 +105,9 @@ app.get(['/ngoc-anh', '/ngoc-anh/'], (_, res) => {
 });
 
 app.get(['/ky-niem', '/ky-niem/'], (_, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.sendFile(path.join(backendRoot, 'anh_ky_niem.html'));
 });
 

@@ -69,3 +69,49 @@ Trả về:
 - `DELETE /api/messages-checkins/:id`
 
 `guest_id` trong `messages_checkins` có thể `null` (thiệp chung) hoặc có giá trị (thiệp riêng).
+
+## 5) Video Streaming (HLS adaptive)
+
+Trang `anh_ky_niem.html` da duoc nang cap de phat video theo HLS adaptive bitrate:
+- Tu dong chon stream theo toc do mang (720p / 1080p / 2K(1440p) / 4K(2160p) neu nguon dat)
+- ABR duoc tune theo loai mang (3G / 4G / Wi-Fi) de giam buffering
+- Co fallback ve MP4 neu trinh duyet khong ho tro HLS.js
+- Co poster preload + thumbnail timeline de tua video muot hon
+
+### Cai FFmpeg tren Windows
+
+Neu may chua co ffmpeg/ffprobe, cai bang `winget`:
+
+```powershell
+winget install -e --id Gyan.FFmpeg
+```
+
+Mo terminal moi sau khi cai de nhan PATH.
+
+### Render HLS
+
+Chay script:
+
+```powershell
+npm run build:hls -- -InputFile "vobe2/www.ziuwedding.site/images/WEDDING NGỌC ÁNH & TRẦN PHONG LOGO.mp4"
+```
+
+Tu dong tao them:
+
+- `poster.webp` (anh dai dien video)
+- `thumbs/thumb_0001.webp ...` (thumbnail timeline)
+- `timeline.json` (metadata de hien thi preview khi tua)
+
+Ket qua tao trong:
+
+- `vobe2/www.ziuwedding.site/videos/wedding-logo-hls/master.m3u8`
+- `vobe2/www.ziuwedding.site/videos/wedding-logo-hls/v0/...`
+- `vobe2/www.ziuwedding.site/videos/wedding-logo-hls/v1/...`
+- `vobe2/www.ziuwedding.site/videos/wedding-logo-hls/v2/...` (neu nguon dat dieu kien)
+
+### Cau hinh player
+
+`wedding-photos.json` su dung:
+
+- `video.hls`: link master playlist `.m3u8` (uu tien)
+- `video.src`: link MP4 fallback

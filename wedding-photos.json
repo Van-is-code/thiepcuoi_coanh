@@ -7,7 +7,10 @@
         "wedding": "Tiệc cưới"
     },
     "video": {
-        "src": ""
+        "hls": "vobe2/www.ziuwedding.site/videos/wedding-logo-hls/master.m3u8",
+        "src": "vobe2/www.ziuwedding.site/images/WEDDING NGỌC ÁNH & TRẦN PHONG LOGO.mp4",
+        "poster": "vobe2/www.ziuwedding.site/videos/wedding-logo-hls/poster.webp",
+        "timeline": "vobe2/www.ziuwedding.site/videos/wedding-logo-hls/timeline.json"
     },
     "photos": [
         {

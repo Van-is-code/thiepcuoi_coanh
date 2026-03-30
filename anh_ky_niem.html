@@ -6,6 +6,10 @@
 <title>Kỷ Niệm Cưới • Wedding Memories</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,600&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- Preload wedding video background -->
+<link rel="preload" as="image" href="vobe2/www.ziuwedding.site/images/background-video.png">
+<!-- DNS prefetch for CDN resources -->
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
 <style>
 /* ══════════════════════════════════════
@@ -157,11 +161,46 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--text);
   margin-bottom: 0.5rem;
   animation: fadeDown 0.7s 0.25s both;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.28em;
+  flex-wrap: nowrap;
 }
 
 .hero-names em {
   font-style: italic;
   color: var(--red);
+}
+
+.hero-name,
+.hero-amp {
+  display: inline-block;
+}
+
+.hero-amp {
+  color: var(--text);
+}
+
+@media (max-width: 620px) and (max-aspect-ratio: 10/16) {
+  .hero-names {
+    display: grid;
+    justify-items: center;
+    gap: 0.02em;
+    line-height: 1.04;
+  }
+
+  .hero-name-top,
+  .hero-name-bottom,
+  .hero-amp {
+    display: block;
+  }
+
+  .hero-amp {
+    font-size: 0.9em;
+    line-height: 1;
+    margin: 0.02em 0;
+  }
 }
 
 .hero-date-line {
@@ -320,46 +359,80 @@ video {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  background: linear-gradient(135deg, #FDF0F1 0%, #FAE5E7 100%);
+  gap: 1.5rem;
+  background-image: url('vobe2/www.ziuwedding.site/images/background-video.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   cursor: pointer;
+  box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.34);
+}
+
+.video-ph::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  background-image: inherit;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(0px) saturate(1) brightness(1);
+  transform: scale(1);
+  z-index: 0;
+}
+
+.video-ph > * {
+  position: relative;
+  z-index: 1;
 }
 
 .video-ph.warn {
   cursor: default;
-  background: linear-gradient(135deg, #fff4f4 0%, #ffe9ec 100%);
+  box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.35);
 }
 
 .video-ph.warn .play-circle {
-  background: #c9a4aa;
-  box-shadow: none;
+  background: rgba(181,25,42,0.6);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
+
 .play-circle {
-  width: 68px; height: 68px;
-  background: var(--red);
+  width: 88px; height: 88px;
+  background: rgba(212,38,56,0.22);
+  border: 1px solid rgba(255,255,255,0.24);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(181,25,42,0.4);
-  transition: transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.28), 0 0 0 4px rgba(255,255,255,0.05);
+  transition: transform var(--transition), box-shadow var(--transition), background-color var(--transition);
 }
+
 .play-circle::after {
   content: '';
-  border-left: 24px solid white;
-  border-top: 14px solid transparent;
-  border-bottom: 14px solid transparent;
-  margin-left: 6px;
+  border-left: 28px solid white;
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  margin-left: 7px;
 }
+
 .video-ph:hover .play-circle {
-  transform: scale(1.1);
-  box-shadow: 0 12px 32px rgba(181,25,42,0.5);
+  transform: scale(1.15);
+  background: rgba(212,38,56,0.3);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 5px rgba(255,255,255,0.08);
 }
+
 .video-ph p {
   font-family: 'Playfair Display', serif;
   font-style: italic;
-  color: var(--text2);
-  font-size: 1rem;
+  color: #FFFFFF;
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  letter-spacing: 0.02em;
+  max-width: 90%;
 }
 .video-caption {
   text-align: center;
@@ -368,6 +441,340 @@ video {
   font-style: italic;
   color: var(--text2);
   font-size: 0.95rem;
+}
+
+.video-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 0.65rem 0.72rem 0.62rem;
+  background: linear-gradient(to top, rgba(6,6,6,0.78) 0%, rgba(6,6,6,0.44) 48%, rgba(6,6,6,0) 100%);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.video-overlay.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.video-overlay.hidden {
+  display: none;
+}
+
+.video-tools {
+  margin-top: 0.52rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.video-tools.hidden {
+  display: none;
+}
+
+.video-quality-label {
+  display: none;
+}
+
+.video-quality-select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(18,16,19,0.52);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.42rem 2rem 0.42rem 2.2rem;
+  min-width: 138px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.video-quality-select:focus {
+  outline: none;
+  border-color: rgba(216,71,86,0.9);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2), 0 0 0 3px rgba(216,71,86,0.25);
+}
+
+.quality-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.quality-picker .quality-icon {
+  position: absolute;
+  left: 0.8rem;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.quality-picker .quality-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  color: rgba(255,255,255,0.85);
+}
+
+.quality-picker .quality-caret {
+  position: absolute;
+  right: 0.78rem;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.quality-picker .quality-caret::before,
+.quality-picker .quality-caret::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 6px;
+  height: 1.8px;
+  background: rgba(255,255,255,0.9);
+}
+
+.quality-picker .quality-caret::before {
+  left: 0;
+  transform: rotate(38deg);
+}
+
+.quality-picker .quality-caret::after {
+  right: 0;
+  transform: rotate(-38deg);
+}
+
+.video-scrub-wrap {
+  margin-top: 0;
+  position: relative;
+  padding: 0;
+}
+
+.video-scrub-wrap.hidden {
+  display: none;
+}
+
+.video-player-controls {
+  margin-top: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.video-player-controls.hidden {
+  display: none;
+}
+
+.video-ctrl-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.video-ctrl-btn {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.38);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-radius: 999px;
+  min-width: 36px;
+  height: 34px;
+  padding: 0 0.56rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.video-ctrl-btn.icon {
+  width: 36px;
+  min-width: 36px;
+  padding: 0;
+}
+
+.video-ctrl-btn svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#btnFullscreen svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.5;
+}
+
+.video-ctrl-btn .fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.video-inner:fullscreen,
+.video-inner:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+
+.video-inner:fullscreen video,
+.video-inner:-webkit-full-screen video {
+  object-fit: contain;
+  background: #000;
+}
+
+.video-ctrl-btn:hover {
+  border-color: rgba(255,255,255,0.8);
+  color: #fff;
+  background: rgba(255,255,255,0.2);
+}
+
+.video-time {
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.84);
+  min-width: 98px;
+}
+
+.video-vol-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.video-volume-seek {
+  width: 88px;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #d84756 0%, #d84756 var(--vol-pct, 100%), rgba(255,255,255,0.24) var(--vol-pct, 100%), rgba(255,255,255,0.24) 100%);
+  outline: none;
+}
+
+.video-volume-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.video-volume-seek::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background: var(--red);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+@media (max-width: 620px) {
+  .video-overlay {
+    padding: 0.56rem;
+  }
+
+  .video-player-controls {
+    align-items: stretch;
+  }
+
+  .video-ctrl-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .video-vol-wrap {
+    flex: 1;
+    justify-content: flex-end;
+  }
+}
+
+.video-seek {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #d84756 0%, #d84756 var(--seek-pct, 0%), rgba(255,255,255,0.24) var(--seek-pct, 0%), rgba(255,255,255,0.24) 100%);
+  outline: none;
+}
+
+.video-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.video-seek::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  background: var(--red);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.thumb-preview {
+  position: absolute;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(8,4,4,0.92);
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.28);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.thumb-preview.show {
+  opacity: 1;
+}
+
+.thumb-preview img {
+  width: 100%;
+  height: 84px;
+  object-fit: cover;
+  display: block;
+}
+
+.thumb-preview span {
+  display: block;
+  text-align: center;
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  padding: 0.32rem 0.4rem;
 }
 
 /* ══════════════════════════════════════
@@ -832,7 +1239,9 @@ video {
   </div>
 
   <h1 class="hero-names">
-    <em>Trần Phong</em> &amp; <em>Ngọc Ánh</em>
+    <span class="hero-name hero-name-top"><em>Trần Phong</em></span>
+    <span class="hero-amp">&amp;</span>
+    <span class="hero-name hero-name-bottom"><em>Ngọc Ánh</em></span>
   </h1>
 
   <div class="hero-date-line">
@@ -870,13 +1279,46 @@ video {
 
   <div class="video-wrap" id="vw">
     <div class="video-inner">
-      <video id="mainVid" controls preload="none" style="display:none">
-        <source id="mainVidSrc" src="" type="video/mp4">
+      <video id="mainVid" preload="none" style="display:none">
+        <source id="mainVidSrc" src="/vobe2/www.ziuwedding.site/images/WEDDING NGỌC ÁNH & TRẦN PHONG LOGO.mp4" type="video/mp4">
       </video>
 
       <div class="video-ph" id="vidPh" onclick="playVideo()">
         <div class="play-circle"></div>
-        <p id="videoNoticeText">Hiện chưa có video cưới</p>
+        <p id="videoNoticeText">Nhấn để xem câu chuyện tình yêu</p>
+      </div>
+      <div id="videoOverlay" class="video-overlay hidden" aria-label="Điều khiển video">
+        <div id="videoScrubWrap" class="video-scrub-wrap hidden" aria-label="Thanh tua video">
+          <input id="videoSeek" class="video-seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Tua video">
+          <div id="thumbPreview" class="thumb-preview" aria-hidden="true">
+            <img id="thumbPreviewImg" src="" alt="Xem truoc khung hinh">
+            <span id="thumbPreviewTime">00:00</span>
+          </div>
+        </div>
+        <div id="videoPlayerControls" class="video-player-controls hidden" aria-label="Điều khiển video">
+          <div class="video-ctrl-group">
+            <button id="btnPlayPause" class="video-ctrl-btn icon" type="button" aria-label="Tạm dừng video"></button>
+            <span class="video-time"><span id="videoCurrentTime">00:00</span> / <span id="videoTotalTime">00:00</span></span>
+          </div>
+          <div class="video-ctrl-group">
+            <div class="video-vol-wrap">
+              <button id="btnMute" class="video-ctrl-btn icon" type="button" aria-label="Tắt âm thanh"></button>
+              <input id="videoVolumeSeek" class="video-volume-seek" type="range" min="0" max="1" step="0.01" value="1" aria-label="Âm lượng video">
+            </div>
+            <button id="btnFullscreen" class="video-ctrl-btn icon" type="button" aria-label="Toàn màn hình"></button>
+          </div>
+        </div>
+        <div id="videoTools" class="video-tools hidden" aria-label="Tùy chọn video">
+          <div class="quality-picker">
+            <span class="quality-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h10"></path><path d="M4 17h7"></path></svg>
+            </span>
+            <select id="qualitySelect" class="video-quality-select" aria-label="Chọn độ phân giải">
+              <option value="auto">Auto</option>
+            </select>
+            <span class="quality-caret" aria-hidden="true"></span>
+          </div>
+        </div>
       </div>
     </div>
     <p class="video-caption">"Mỗi khoảnh khắc đều xứng đáng được lưu mãi."</p>
@@ -935,7 +1377,41 @@ video {
 </div>
 
 <!-- ════════ SCRIPT ════════ -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js"></script>
 <script>
+/*
+ ═════════════════════════════════════════════════════════════════════
+ PRODUCTION DEPLOYMENT OPTIMIZATION NOTES:
+ ═════════════════════════════════════════════════════════════════════
+ 
+ For VPS deployment, ensure these HTTP headers are set:
+ 
+ 1. HTML file (anh_ky_niem.html):
+    Cache-Control: public, max-age=3600  (1 hour - changes occasionally)
+    
+ 2. JSON files (wedding-photos.json, timeline.json):
+    Cache-Control: public, max-age=1800  (30 min - video metadata)
+    
+ 3. Video assets (HLS playlists, segments, MP4):
+    Cache-Control: public, max-age=31536000  (1 year - content-addressed)
+    ETag: [based on file hash]
+    
+ 4. Images (JPG, WebP, PNG):
+    Cache-Control: public, max-age=31536000  (1 year - immutable)
+    
+ 5. Fonts (from googleapis.com):
+    Already cached via CDN
+    
+ 6. CDN Resources (hls.js):
+    Already cached via CDN (jsdelivr.net)
+ 
+ Recommended nginx/Apache config:
+ - Enable gzip compression for HTML/JS/CSS
+ - Set proper MIME types for WebP, mp4, m3u8, mp4s
+ - Consider HLS adaptive streaming via CDN edge (optional)
+ ═════════════════════════════════════════════════════════════════════
+ */
+
 /* ─── Image data from local JSON ─── */
 let PHOTOS = [];
 
@@ -948,10 +1424,33 @@ let visiblePhotos = []; // filtered list
 let lbIdx = 0;
 let renderToken = 0;
 let hasVideo = false;
+let hlsPlayer = null;
+let videoConfigState = null;
+let streamReady = false;
+let timelineState = null;
+let isSeekingByUser = false;
+let qualityIsAuto = true;
+let controlsBound = false;
+let scrubberBound = false;
+let overlayBound = false;
+let overlayHideTimer = null;
 const INITIAL_EAGER_COUNT = 4;
+const DEFAULT_VIDEO_CONFIG = {
+  hls: '/vobe2/www.ziuwedding.site/videos/wedding-logo-hls/master.m3u8',
+  src: '/vobe2/www.ziuwedding.site/images/WEDDING NGỌC ÁNH & TRẦN PHONG LOGO.mp4',
+  poster: '/vobe2/www.ziuwedding.site/videos/wedding-logo-hls/poster.webp',
+  timeline: '/vobe2/www.ziuwedding.site/videos/wedding-logo-hls/timeline.json'
+};
+
+function normalizeMediaPath(path) {
+  const value = String(path || '').trim();
+  if (!value) return '';
+  if (/^(https?:|data:|blob:|\/)/i.test(value)) return value;
+  return `/${value}`;
+}
 
 function getSafeSrc(path) {
-  return encodeURI(path);
+  return encodeURI(normalizeMediaPath(path));
 }
 
 function updateCounters(count) {
@@ -985,6 +1484,7 @@ function setVideoWarning(message) {
   const vid = document.getElementById('mainVid');
   const ph = document.getElementById('vidPh');
   const txt = document.getElementById('videoNoticeText');
+  teardownVideoPlayer();
   hasVideo = false;
   vid.pause();
   vid.style.display = 'none';
@@ -994,36 +1494,581 @@ function setVideoWarning(message) {
   updateVideoCounter(0);
 }
 
-function setupVideo(videoConfig) {
-  const vid = document.getElementById('mainVid');
-  const source = document.getElementById('mainVidSrc');
-  const ph = document.getElementById('vidPh');
-  const txt = document.getElementById('videoNoticeText');
-  const srcRaw = typeof videoConfig === 'string' ? videoConfig : videoConfig?.src;
-  const src = (srcRaw || '').trim();
+function formatClock(seconds) {
+  const sec = Math.max(0, Math.floor(seconds));
+  const hh = Math.floor(sec / 3600);
+  const mm = Math.floor((sec % 3600) / 60);
+  const ss = sec % 60;
+  if (hh > 0) {
+    return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  }
+  return `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
 
-  if (!src) {
-    source.src = '';
-    setVideoWarning('Hiện chưa có video cưới');
+function formatPatternNumber(pattern, num, digits = 4) {
+  const value = String(num).padStart(digits, '0');
+  return pattern
+    .replace(new RegExp(`%0${digits}d`, 'g'), value)
+    .replace(/%d/g, String(num));
+}
+
+function computeNetworkQualityCap(levels) {
+  if (!Array.isArray(levels) || !levels.length) return -1;
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (!conn) return -1;
+
+  const type = String(conn.effectiveType || '').toLowerCase();
+  const downlink = Number(conn.downlink || 0);
+  let maxHeight = 2160;
+
+  if (type.includes('2g') || type.includes('slow-2g')) {
+    maxHeight = 720;
+  } else if (type.includes('3g')) {
+    maxHeight = 720;
+  } else if (type.includes('4g')) {
+    if (downlink > 0 && downlink < 8) {
+      maxHeight = 1080;
+    } else if (downlink >= 8 && downlink < 16) {
+      maxHeight = 1440;
+    }
+  }
+
+  let bestIdx = -1;
+  levels.forEach((lv, idx) => {
+    const h = Number(lv.height || 0);
+    if (h <= maxHeight) bestIdx = idx;
+  });
+  return bestIdx;
+}
+
+function applyNetworkQualityCap() {
+  if (!hlsPlayer || !Array.isArray(hlsPlayer.levels) || !hlsPlayer.levels.length) return;
+  const cap = computeNetworkQualityCap(hlsPlayer.levels);
+  hlsPlayer.autoLevelCapping = cap;
+}
+
+function resetQualityControls() {
+  qualityIsAuto = true;
+  const tools = document.getElementById('videoTools');
+  const select = document.getElementById('qualitySelect');
+  if (tools) tools.classList.add('hidden');
+  if (select) select.innerHTML = '<option value="auto">Auto</option>';
+}
+
+function setupQualityControls() {
+  const tools = document.getElementById('videoTools');
+  const select = document.getElementById('qualitySelect');
+
+  if (!tools || !select) return;
+  if (!hlsPlayer || !Array.isArray(hlsPlayer.levels) || !hlsPlayer.levels.length) {
+    tools.classList.add('hidden');
     return;
   }
 
-  source.src = getSafeSrc(src);
+  const groupedByHeight = new Map();
+  hlsPlayer.levels.forEach((level, idx) => {
+    const h = Number(level.height || 0);
+    if (!h) return;
+    const current = groupedByHeight.get(h);
+    if (!current || Number(level.bitrate || 0) > Number(current.bitrate || 0)) {
+      groupedByHeight.set(h, { idx, bitrate: level.bitrate || 0 });
+    }
+  });
+
+  const options = [...groupedByHeight.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .map(([height, info]) => ({ label: `${height}p`, value: String(info.idx), height }));
+
+  select.innerHTML = '<option value="auto">Auto</option>' +
+    options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
+
+  select.onchange = () => {
+    if (!hlsPlayer) return;
+    const value = select.value;
+    if (value === 'auto') {
+      qualityIsAuto = true;
+      hlsPlayer.currentLevel = -1;
+      hlsPlayer.nextLevel = -1;
+      return;
+    }
+
+    const levelIdx = Number(value);
+    qualityIsAuto = false;
+    hlsPlayer.currentLevel = levelIdx;
+    hlsPlayer.nextLevel = levelIdx;
+  };
+
+  tools.classList.remove('hidden');
+}
+
+function setControlIcon(button, iconName) {
+  if (!button) return;
+  const icons = {
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="fill" d="M8 5v14l11-7z"></path></svg>',
+    pause: '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="fill" d="M7 5h4v14H7z"></path><path class="fill" d="M13 5h4v14h-4z"></path></svg>',
+    volume: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h4l5-4v12l-5-4H4z"></path><path d="M16 9c1.7 1.7 1.7 4.3 0 6"></path><path d="M18.8 6.2c3.2 3.2 3.2 8.4 0 11.6"></path></svg>',
+    mute: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h4l5-4v12l-5-4H4z"></path><path d="M16 9l5 5"></path><path d="M21 9l-5 5"></path></svg>',
+    fullscreen: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.8 10.8L6 6"></path><path d="M6 9V6H9"></path><path d="M13.2 13.2 18 18"></path><path d="M15 18h3v-3"></path></svg>',
+    fullscreenExit: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l4.8 4.8"></path><path d="M8.8 10.8h2v-2"></path><path d="M18 18l-4.8-4.8"></path><path d="M15.2 13.2h-2v2"></path></svg>'
+  };
+  button.innerHTML = icons[iconName] || '';
+}
+
+function ensurePosterPreload(posterPath) {
+  if (!posterPath) return;
+  const href = getSafeSrc(posterPath);
+  const existing = document.querySelector(`link[rel="preload"][as="image"][href="${href}"]`);
+  if (existing) return;
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = href;
+  document.head.appendChild(link);
+}
+
+function updateSeekUI(vid, value) {
+  const seek = document.getElementById('videoSeek');
+  if (!seek || !Number.isFinite(value)) return;
+  const pct = Math.max(0, Math.min(100, (value / 1000) * 100));
+  seek.style.setProperty('--seek-pct', `${pct}%`);
+}
+
+function updateVolumeUI(vid) {
+  const volumeSeek = document.getElementById('videoVolumeSeek');
+  if (!volumeSeek || !vid) return;
+  const ratio = vid.muted ? 0 : Number(vid.volume || 0);
+  volumeSeek.value = String(ratio);
+  volumeSeek.style.setProperty('--vol-pct', `${Math.round(ratio * 100)}%`);
+}
+
+function clearOverlayHideTimer() {
+  if (overlayHideTimer) {
+    window.clearTimeout(overlayHideTimer);
+    overlayHideTimer = null;
+  }
+}
+
+function setOverlayShown(show) {
+  const overlay = document.getElementById('videoOverlay');
+  if (!overlay || overlay.classList.contains('hidden')) return;
+  overlay.classList.toggle('show', !!show);
+}
+
+function scheduleOverlayAutoHide() {
+  const vid = document.getElementById('mainVid');
+  const overlay = document.getElementById('videoOverlay');
+  if (!vid || !overlay || overlay.classList.contains('hidden')) return;
+  clearOverlayHideTimer();
+  if (vid.paused || vid.ended) {
+    setOverlayShown(true);
+    return;
+  }
+  overlayHideTimer = window.setTimeout(() => {
+    setOverlayShown(false);
+  }, 2200);
+}
+
+function wakeOverlayControls() {
+  setOverlayShown(true);
+  scheduleOverlayAutoHide();
+}
+
+function bindOverlayVisibility() {
+  if (overlayBound) return;
+  const vid = document.getElementById('mainVid');
+  const inner = document.querySelector('.video-inner');
+  const overlay = document.getElementById('videoOverlay');
+  if (!vid || !inner || !overlay) return;
+
+  const wake = () => wakeOverlayControls();
+
+  inner.addEventListener('mousemove', wake);
+  inner.addEventListener('mouseenter', wake);
+  inner.addEventListener('touchstart', wake, { passive: true });
+  inner.addEventListener('mouseleave', () => scheduleOverlayAutoHide());
+  overlay.addEventListener('mouseenter', () => clearOverlayHideTimer());
+  overlay.addEventListener('mouseleave', () => scheduleOverlayAutoHide());
+
+  vid.addEventListener('play', () => scheduleOverlayAutoHide());
+  vid.addEventListener('pause', () => setOverlayShown(true));
+  vid.addEventListener('ended', () => setOverlayShown(true));
+
+  overlayBound = true;
+}
+
+function setVideoControlsVisible(visible) {
+  const overlay = document.getElementById('videoOverlay');
+  const controls = document.getElementById('videoPlayerControls');
+  const scrub = document.getElementById('videoScrubWrap');
+  if (!overlay || !controls || !scrub) return;
+
+  overlay.classList.toggle('hidden', !visible);
+  controls.classList.toggle('hidden', !visible);
+  scrub.classList.toggle('hidden', !visible);
+
+  if (!visible) {
+    clearOverlayHideTimer();
+    overlay.classList.remove('show');
+    return;
+  }
+
+  overlay.classList.add('show');
+  scheduleOverlayAutoHide();
+}
+
+function syncPlayPauseUI(vid) {
+  const btn = document.getElementById('btnPlayPause');
+  if (!btn || !vid) return;
+  const isPaused = vid.paused || vid.ended;
+  setControlIcon(btn, isPaused ? 'play' : 'pause');
+  btn.setAttribute('aria-label', isPaused ? 'Phát video' : 'Tạm dừng video');
+}
+
+function syncTimeUI(vid) {
+  const currentEl = document.getElementById('videoCurrentTime');
+  const totalEl = document.getElementById('videoTotalTime');
+  if (!currentEl || !totalEl || !vid) return;
+  currentEl.textContent = formatClock(vid.currentTime || 0);
+  totalEl.textContent = Number.isFinite(vid.duration) && vid.duration > 0
+    ? formatClock(vid.duration)
+    : '00:00';
+}
+
+function syncFullscreenUI() {
+  const btn = document.getElementById('btnFullscreen');
+  const container = document.querySelector('.video-inner');
+  if (!btn) return;
+  const inFs = !!container && document.fullscreenElement === container;
+  setControlIcon(btn, inFs ? 'fullscreenExit' : 'fullscreen');
+  btn.setAttribute('aria-label', inFs ? 'Thoát toàn màn hình' : 'Toàn màn hình');
+}
+
+function bindVideoControls() {
+  if (controlsBound) return;
+  const vid = document.getElementById('mainVid');
+  const playBtn = document.getElementById('btnPlayPause');
+  const muteBtn = document.getElementById('btnMute');
+  const volumeSeek = document.getElementById('videoVolumeSeek');
+  const fullscreenBtn = document.getElementById('btnFullscreen');
+  const container = document.querySelector('.video-inner');
+  if (!vid || !playBtn || !muteBtn || !volumeSeek || !fullscreenBtn) return;
+
+  playBtn.addEventListener('click', () => {
+    if (vid.paused) {
+      vid.play().catch(() => {});
+      return;
+    }
+    vid.pause();
+  });
+
+  vid.addEventListener('click', () => {
+    if (vid.paused) {
+      vid.play().catch(() => {});
+      return;
+    }
+    vid.pause();
+  });
+
+  muteBtn.addEventListener('click', () => {
+    vid.muted = !vid.muted;
+    setControlIcon(muteBtn, vid.muted ? 'mute' : 'volume');
+    muteBtn.setAttribute('aria-label', vid.muted ? 'Bật âm thanh' : 'Tắt âm thanh');
+    updateVolumeUI(vid);
+  });
+
+  volumeSeek.addEventListener('input', () => {
+    const value = Number(volumeSeek.value || 0);
+    vid.muted = value <= 0.001;
+    vid.volume = Math.max(0, Math.min(1, value));
+    setControlIcon(muteBtn, vid.muted ? 'mute' : 'volume');
+    muteBtn.setAttribute('aria-label', vid.muted ? 'Bật âm thanh' : 'Tắt âm thanh');
+    updateVolumeUI(vid);
+  });
+
+  fullscreenBtn.addEventListener('click', async () => {
+    try {
+      if (container && document.fullscreenElement === container) {
+        await document.exitFullscreen();
+      } else if (container && container.requestFullscreen) {
+        await container.requestFullscreen();
+      }
+    } catch {
+      // Ignore fullscreen errors from browser restrictions.
+    }
+    syncFullscreenUI();
+  });
+
+  vid.addEventListener('loadedmetadata', () => {
+    syncTimeUI(vid);
+    updateVolumeUI(vid);
+  });
+  vid.addEventListener('timeupdate', () => syncTimeUI(vid));
+  vid.addEventListener('play', () => syncPlayPauseUI(vid));
+  vid.addEventListener('pause', () => syncPlayPauseUI(vid));
+  vid.addEventListener('volumechange', () => {
+    setControlIcon(muteBtn, vid.muted ? 'mute' : 'volume');
+    muteBtn.setAttribute('aria-label', vid.muted ? 'Bật âm thanh' : 'Tắt âm thanh');
+    updateVolumeUI(vid);
+  });
+
+  document.addEventListener('fullscreenchange', syncFullscreenUI);
+  document.addEventListener('fullscreenchange', wakeOverlayControls);
+
+  controlsBound = true;
+  syncPlayPauseUI(vid);
+  syncTimeUI(vid);
+  setControlIcon(muteBtn, 'volume');
+  setControlIcon(fullscreenBtn, 'fullscreen');
+  updateVolumeUI(vid);
+  syncFullscreenUI();
+  bindOverlayVisibility();
+}
+
+function hideThumbPreview() {
+  const preview = document.getElementById('thumbPreview');
+  if (preview) preview.classList.remove('show');
+}
+
+function showThumbPreviewByPointer(clientX) {
+  if (!timelineState || !timelineState.count) return;
+  const seek = document.getElementById('videoSeek');
+  const preview = document.getElementById('thumbPreview');
+  const img = document.getElementById('thumbPreviewImg');
+  const time = document.getElementById('thumbPreviewTime');
+  if (!seek || !preview || !img || !time) return;
+
+  const rect = seek.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  const sec = ratio * timelineState.duration;
+  const rawIdx = Math.floor(sec / timelineState.interval);
+  const idx = Math.max(0, Math.min(timelineState.count - 1, rawIdx));
+  const fileNum = idx + 1;
+  const file = formatPatternNumber(timelineState.pattern, fileNum, timelineState.digits || 4);
+  const src = `${timelineState.basePath}/${file}`;
+
+  img.src = getSafeSrc(src);
+  time.textContent = formatClock(sec);
+  preview.style.left = `${ratio * rect.width}px`;
+  preview.classList.add('show');
+}
+
+function bindTimelineScrubber() {
+  const vid = document.getElementById('mainVid');
+  const seek = document.getElementById('videoSeek');
+  const wrap = document.getElementById('videoScrubWrap');
+  if (!vid || !seek || !wrap) return;
+
+  wrap.classList.toggle('hidden', !hasVideo);
+  bindVideoControls();
+  bindOverlayVisibility();
+  if (scrubberBound) return;
+
+  const syncFromVideo = () => {
+    if (!Number.isFinite(vid.duration) || vid.duration <= 0 || isSeekingByUser) return;
+    const v = Math.round((vid.currentTime / vid.duration) * 1000);
+    seek.value = String(v);
+    updateSeekUI(vid, v);
+  };
+
+  vid.addEventListener('timeupdate', syncFromVideo);
+  vid.addEventListener('loadedmetadata', syncFromVideo);
+
+  seek.addEventListener('input', () => {
+    isSeekingByUser = true;
+    const value = Number(seek.value || 0);
+    updateSeekUI(vid, value);
+    if (Number.isFinite(vid.duration) && vid.duration > 0) {
+      vid.currentTime = (value / 1000) * vid.duration;
+    }
+  });
+
+  seek.addEventListener('change', () => {
+    isSeekingByUser = false;
+  });
+
+  seek.addEventListener('mousemove', e => {
+    if (!timelineState) return;
+    showThumbPreviewByPointer(e.clientX);
+  });
+
+  seek.addEventListener('touchmove', e => {
+    if (!timelineState) return;
+    if (!e.touches || !e.touches.length) return;
+    showThumbPreviewByPointer(e.touches[0].clientX);
+  }, { passive: true });
+
+  seek.addEventListener('mouseleave', hideThumbPreview);
+  seek.addEventListener('touchend', hideThumbPreview, { passive: true });
+  scrubberBound = true;
+}
+
+async function loadTimelineMeta(rawTimelineConfig) {
+  if (!rawTimelineConfig) {
+    timelineState = null;
+    return;
+  }
+
+  if (typeof rawTimelineConfig === 'string') {
+    const res = await fetch(getSafeSrc(rawTimelineConfig));
+    if (!res.ok) throw new Error(`Khong tai duoc timeline metadata: HTTP ${res.status}`);
+    timelineState = await res.json();
+  } else {
+    timelineState = rawTimelineConfig;
+  }
+}
+
+function teardownVideoPlayer() {
+  const vid = document.getElementById('mainVid');
+  if (hlsPlayer) {
+    hlsPlayer.destroy();
+    hlsPlayer = null;
+  }
+  resetQualityControls();
+  setVideoControlsVisible(false);
+  clearOverlayHideTimer();
+  vid.removeAttribute('src');
+  streamReady = false;
+  vid.load();
+}
+
+async function ensureVideoStreamLoaded() {
+  if (streamReady && hasVideo) return;
+  const vid = document.getElementById('mainVid');
+  const source = document.getElementById('mainVidSrc');
+  const cfg = videoConfigState || {};
+  const hlsSrc = (cfg.hls || '').trim();
+  const mp4Src = (cfg.src || '').trim();
+
+  if (hlsSrc && window.Hls && window.Hls.isSupported()) {
+    try {
+      hlsPlayer = new window.Hls({
+        enableWorker: true,
+        lowLatencyMode: false,
+        autoStartLoad: false,
+        startLevel: -1,
+        capLevelToPlayerSize: true,
+        maxBufferLength: 12,
+        maxMaxBufferLength: 36,
+        backBufferLength: 20,
+        abrBandWidthFactor: 0.75,
+        abrBandWidthUpFactor: 0.65,
+        testBandwidth: true
+      });
+
+      await new Promise((resolve, reject) => {
+        const onFatal = (_, data) => {
+          if (data && data.fatal) {
+            reject(new Error('HLS fatal error'));
+          }
+        };
+
+        hlsPlayer.attachMedia(vid);
+        hlsPlayer.on(window.Hls.Events.MEDIA_ATTACHED, () => {
+          hlsPlayer.loadSource(getSafeSrc(hlsSrc));
+        });
+        hlsPlayer.on(window.Hls.Events.MANIFEST_PARSED, () => {
+          const lowestLevel = Math.max(0, hlsPlayer.levels.length - 1);
+          hlsPlayer.startLevel = lowestLevel;
+          hlsPlayer.nextLevel = lowestLevel;
+          applyNetworkQualityCap();
+          setupQualityControls();
+          streamReady = true;
+          resolve();
+        });
+        hlsPlayer.on(window.Hls.Events.ERROR, onFatal);
+        hlsPlayer.on(window.Hls.Events.LEVEL_SWITCHED, () => {
+          applyNetworkQualityCap();
+          if (qualityIsAuto) {
+            const select = document.getElementById('qualitySelect');
+            if (!select) return;
+            const idx = hlsPlayer.currentLevel;
+            const h = idx >= 0 ? Number((hlsPlayer.levels[idx] || {}).height || 0) : 0;
+            select.options[0].textContent = h ? `Auto (${h}p)` : 'Auto';
+            select.value = 'auto';
+          }
+        });
+      });
+
+      if (hlsPlayer && typeof hlsPlayer.startLoad === 'function') {
+        const initialLevel = Math.max(0, hlsPlayer.levels.length - 1);
+        hlsPlayer.startLoad(initialLevel);
+      }
+      return;
+    } catch {
+      if (hlsPlayer) {
+        hlsPlayer.destroy();
+        hlsPlayer = null;
+      }
+      if (mp4Src) {
+        source.src = getSafeSrc(mp4Src);
+        vid.load();
+        streamReady = true;
+        return;
+      }
+    }
+  }
+
+  if (hlsSrc && vid.canPlayType('application/vnd.apple.mpegurl')) {
+    vid.src = getSafeSrc(hlsSrc);
+    streamReady = true;
+    return;
+  }
+
+  if (mp4Src) {
+    source.src = getSafeSrc(mp4Src);
+    vid.load();
+    streamReady = true;
+    return;
+  }
+
+  throw new Error('No playable source');
+}
+
+function setupVideo(videoConfig) {
+  const vid = document.getElementById('mainVid');
+  const ph = document.getElementById('vidPh');
+  const txt = document.getElementById('videoNoticeText');
+  const config = typeof videoConfig === 'string' ? { src: videoConfig } : (videoConfig || {});
+  const hlsSrc = (config.hls || '').trim();
+  const src = (config.src || '').trim();
+  const poster = (config.poster || '').trim();
+
+  teardownVideoPlayer();
+  videoConfigState = config;
+  timelineState = null;
+  const scrubWrap = document.getElementById('videoScrubWrap');
+  if (scrubWrap) scrubWrap.classList.add('hidden');
+
+  if (!hlsSrc && !src) {
+    ph.classList.add('warn');
+    txt.textContent = 'Không có dữ liệu video';
+    return;
+  }
+
+  if (poster) {
+    vid.poster = getSafeSrc(poster);
+    ensurePosterPreload(poster);
+  } else {
+    vid.removeAttribute('poster');
+  }
+
+  loadTimelineMeta(config.timeline)
+    .then(() => bindTimelineScrubber())
+    .catch(() => {
+      timelineState = null;
+      bindTimelineScrubber();
+    });
+
   hasVideo = true;
   ph.classList.remove('warn');
-  txt.textContent = 'Nhấn để xem video cưới';
+  txt.textContent = 'Nhấn để xem câu chuyện tình yêu';
+  setVideoControlsVisible(false);
+  bindVideoControls();
   updateVideoCounter(1);
 
-  vid.onloadeddata = () => {
-    hasVideo = true;
-    ph.classList.remove('warn');
-    txt.textContent = 'Nhấn để xem video cưới';
-    updateVideoCounter(1);
-  };
   vid.onerror = () => {
-    setVideoWarning('Video chưa sẵn sàng, vui lòng thêm/kiểm tra đường dẫn trong wedding-photos.json');
+    setVideoWarning('Video không thể phát. Kiểm tra đường dẫn HLS/MP4.');
   };
-  vid.load();
 }
 
 async function buildGrid(photos) {
@@ -1072,7 +2117,11 @@ async function buildGrid(photos) {
 
 async function loadPhotos() {
   try {
-    const res = await fetch('./wedding-photos.json');
+    // Fetch JSON with cache headers set on server
+    // Server should set: Cache-Control: public, max-age=1800
+    const res = await fetch('/wedding-photos.json', {
+      credentials: 'same-origin' 
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     PHOTOS = Array.isArray(data.photos)
@@ -1084,15 +2133,19 @@ async function loadPhotos() {
           alt: p.alt
         }))
       : [];
-    setupVideo(data.video);
+    const remoteVideo = data && typeof data.video === 'object' ? data.video : null;
+    const resolvedVideo = (remoteVideo && ((remoteVideo.hls || '').trim() || (remoteVideo.src || '').trim()))
+      ? remoteVideo
+      : DEFAULT_VIDEO_CONFIG;
+    setupVideo(resolvedVideo);
     visiblePhotos = getPhotosByTab('all');
     await buildGrid(visiblePhotos);
     updateCounters(visiblePhotos.length);
   } catch (err) {
-    console.error('Khong the tai wedding-photos.json:', err);
-    grid.innerHTML = '<p style="padding:1rem;text-align:center;color:var(--text2)">Không tải được dữ liệu ảnh. Hãy kiểm tra file wedding-photos.json.</p>';
+    console.error('Lỗi tải wedding-photos.json:', err);
+    grid.innerHTML = '<p style="padding:1rem;text-align:center;color:var(--text2)">Không tải được dữ liệu album. Kiểm tra kết nối mạng.</p>';
     setGridStatus('');
-    setVideoWarning('Không tải được dữ liệu video từ wedding-photos.json');
+    setupVideo(DEFAULT_VIDEO_CONFIG);
     updateCounters(0);
   }
 }
@@ -1178,17 +2231,25 @@ document.addEventListener('keydown', e => {
 /* ─── Video ─── */
 function playVideo() {
   if (!hasVideo) {
-    setVideoWarning('Hiện chưa có video cưới. Khi có, thêm vào trường video.src trong wedding-photos.json');
-    return;
+    setupVideo(DEFAULT_VIDEO_CONFIG);
   }
+
   const vid = document.getElementById('mainVid');
   const ph  = document.getElementById('vidPh');
-  ph.classList.remove('warn');
-  ph.style.display = 'none';
-  vid.style.display = 'block';
-  vid.play().catch(() => {
-    setVideoWarning('Video chưa phát được, vui lòng kiểm tra lại đường dẫn trong wedding-photos.json');
-  });
+
+  ensureVideoStreamLoaded()
+    .then(() => {
+      ph.classList.remove('warn');
+      ph.style.display = 'none';
+      vid.style.display = 'block';
+      setVideoControlsVisible(true);
+      vid.focus();
+      return vid.play();
+    })
+    .catch((err) => {
+      console.error('Video play error:', err);
+      setVideoWarning('Không thể phát video. Kiểm tra lại đường dẫn trong cấu hình.');
+    });
 }
 
 /* ─── Progress bar + back-to-gallery btn ─── */
@@ -1231,6 +2292,9 @@ setInterval(() => {
   document.body.appendChild(p);
   setTimeout(() => p.remove(), 11000);
 }, 1800);
+
+// Prime video state immediately so user can play even before JSON finishes loading.
+setupVideo(DEFAULT_VIDEO_CONFIG);
 </script>
 </body>
 </html>
