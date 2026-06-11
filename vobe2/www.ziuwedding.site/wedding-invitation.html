@@ -587,6 +587,19 @@ function shareZalo() {
     showToast('Chưa có link thiệp');
     return;
   }
+  const ua = navigator.userAgent || '';
+  const encodedUrl = encodeURIComponent(currentUrl);
+
+  if (/Android/i.test(ua)) {
+    window.location.href = `intent://zaloapp.com/#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.SUBJECT=;S.android.intent.extra.TEXT=${encodedUrl};B.hidePostFeed=false;B.backToSource=true;end`;
+    return;
+  }
+
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    window.location.href = `zaloshareext://shareext?url=${encodedUrl}&type=8&version=1`;
+    return;
+  }
+
   openOfficialZaloShare(currentUrl);
 }
 
@@ -595,9 +608,15 @@ function shareMessenger() {
     showToast('Chưa có link thiệp');
     return;
   }
+  const ua = navigator.userAgent || '';
   const url = encodeURIComponent(currentUrl);
-  const webUrl = `https://www.facebook.com/dialog/send?link=${url}&app_id=291494419107518&redirect_uri=${url}`;
-  openShareTarget(`fb-messenger://share/?link=${url}`, webUrl);
+
+  if (/Android|iPhone|iPad|iPod/i.test(ua)) {
+    window.location.href = `fb-messenger://share/?link=${url}`;
+    return;
+  }
+
+  window.location.href = 'https://www.messenger.com/';
 }
 
 function shareFacebook() {
