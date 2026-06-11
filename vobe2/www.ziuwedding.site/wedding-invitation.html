@@ -496,26 +496,52 @@ function openShareTarget(appUrl, webUrl) {
   if (isMobile) {
     window.location.href = appUrl;
     setTimeout(() => {
-      window.open(webUrl, '_blank', 'noopener,noreferrer');
-    }, 500);
+      if (document.visibilityState === 'visible') {
+        window.location.href = webUrl;
+      }
+    }, 900);
     return;
   }
 
-  window.open(webUrl, '_blank', 'noopener,noreferrer');
+  const popup = window.open(webUrl, '_blank');
+  if (!popup) {
+    window.location.href = webUrl;
+    return;
+  }
+
+  try {
+    popup.opener = null;
+  } catch (error) {
+    // Ignore browsers that disallow touching opener.
+  }
 }
 
 function shareZalo() {
+  if (!currentUrl) {
+    showToast('Chưa có link thiệp');
+    return;
+  }
   const msg = encodeURIComponent(getMsg());
-  openShareTarget(`zalo://share?text=${msg}`, `https://zalo.me/share?text=${msg}`);
+  const title = encodeURIComponent(`Thiệp mời cưới - ${currentGuest}`);
+  const webUrl = `https://zalo.me/share/url?url=${encodeURIComponent(currentUrl)}&title=${title}`;
+  openShareTarget(`zalo://share?text=${msg}`, webUrl);
 }
 
 function shareMessenger() {
+  if (!currentUrl) {
+    showToast('Chưa có link thiệp');
+    return;
+  }
   const url = encodeURIComponent(currentUrl);
   const webUrl = `https://www.facebook.com/dialog/send?link=${url}&app_id=291494419107518&redirect_uri=${url}`;
   openShareTarget(`fb-messenger://share/?link=${url}`, webUrl);
 }
 
 function shareFacebook() {
+  if (!currentUrl) {
+    showToast('Chưa có link thiệp');
+    return;
+  }
   const url = encodeURIComponent(currentUrl);
   const webUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
   openShareTarget(`fb://facewebmodal/f?href=${webUrl}`, webUrl);

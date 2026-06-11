@@ -13,7 +13,23 @@ const { startRedirectServer } = require('./redirectServer');
 const app = express();
 
 const port = Number(process.env.PORT || 3000);
-const basePublicUrl = process.env.BASE_PUBLIC_URL || `http://localhost:${port}`;
+function resolveBasePublicUrl() {
+  const thiepPublicUrl = String(process.env.THIEP_PUBLIC_URL || '').trim();
+  if (thiepPublicUrl) {
+    try {
+      return new URL(thiepPublicUrl).origin.replace(/\/$/, '');
+    } catch (error) {
+      // Fall through to BASE_PUBLIC_URL if the configured URL is malformed.
+    }
+  }
+
+  const basePublicUrl = String(process.env.BASE_PUBLIC_URL || '').trim().replace(/\/$/, '');
+  if (basePublicUrl) return basePublicUrl;
+
+  return `http://localhost:${port}`;
+}
+
+const basePublicUrl = resolveBasePublicUrl();
 
 const staticRoot = path.resolve(__dirname, '../vobe2/www.ziuwedding.site');
 const cdnMirrorRoot = path.resolve(__dirname, '../vobe2/w.ladicdn.com');

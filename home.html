@@ -495,26 +495,52 @@ function openShareTarget(appUrl, webUrl) {
   if (isMobile) {
     window.location.href = appUrl;
     setTimeout(() => {
-      window.open(webUrl, '_blank', 'noopener,noreferrer');
-    }, 500);
+      if (document.visibilityState === 'visible') {
+        window.location.href = webUrl;
+      }
+    }, 900);
     return;
   }
 
-  window.open(webUrl, '_blank', 'noopener,noreferrer');
+  const popup = window.open(webUrl, '_blank');
+  if (!popup) {
+    window.location.href = webUrl;
+    return;
+  }
+
+  try {
+    popup.opener = null;
+  } catch (error) {
+    // Ignore cross-browser differences in opener handling.
+  }
 }
 
 function shareZalo() {
+  if (!thiepUrl) {
+    toast('Chưa có link thiệp');
+    return;
+  }
   const msg = encodeURIComponent(getCommonInviteMsg());
-  openShareTarget(`zalo://share?text=${msg}`, `https://zalo.me/share?text=${msg}`);
+  const title = encodeURIComponent('Thiệp mời cưới - Đức Cương & Nguyễn Quyết');
+  const webUrl = `https://zalo.me/share/url?url=${encodeURIComponent(thiepUrl)}&title=${title}`;
+  openShareTarget(`zalo://share?text=${msg}`, webUrl);
 }
 
 function shareMessenger() {
+  if (!thiepUrl) {
+    toast('Chưa có link thiệp');
+    return;
+  }
   const url = encodeURIComponent(thiepUrl);
   const webUrl = `https://www.facebook.com/dialog/send?link=${url}&app_id=291494419107518&redirect_uri=${url}`;
   openShareTarget(`fb-messenger://share/?link=${url}`, webUrl);
 }
 
 function shareFacebook() {
+  if (!thiepUrl) {
+    toast('Chưa có link thiệp');
+    return;
+  }
   const url = encodeURIComponent(thiepUrl);
   const webUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
   openShareTarget(`fb://facewebmodal/f?href=${webUrl}`, webUrl);
