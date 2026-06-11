@@ -642,17 +642,7 @@ function closeOnOverlay(e) {
 function getMsg() { return `💍 Kính mời ${currentGuest.name} đến dự lễ cưới của chúng mình!\n\nXem thiệp tại: ${currentGuest.url}`; }
 
 function openShareTarget(appUrl, webUrl) {
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
-  if (isMobile) {
-    window.location.href = appUrl;
-    setTimeout(() => {
-      if (document.visibilityState === 'visible') {
-        window.location.href = webUrl;
-      }
-    }, 900);
-    return;
-  }
-
+  // Prefer the web share page so Messenger/Facebook stay stable on mobile.
   const popup = window.open(webUrl, '_blank');
   if (!popup) {
     window.location.href = webUrl;
@@ -680,14 +670,95 @@ function openWebShareTarget(webUrl) {
   }
 }
 
+let zaloShareSdkPromise = null;
+let zaloShareButtonEl = null;
+
+function ensureZaloShareButton(url) {
+  const hostButton = document.querySelector('button[onclick="shareZalo()"]');
+  if (!zaloShareButtonEl) {
+    zaloShareButtonEl = document.createElement('div');
+    zaloShareButtonEl.id = 'zaloShareButton';
+    zaloShareButtonEl.className = 'zalo-share-button';
+    zaloShareButtonEl.style.cssText = [
+      'position:absolute',
+      'inset:0',
+      'width:100%',
+      'height:100%',
+      'opacity:0',
+      'pointer-events:none',
+    ].join(';');
+    if (hostButton) {
+      hostButton.style.position = 'relative';
+      hostButton.appendChild(zaloShareButtonEl);
+    } else {
+      document.body.appendChild(zaloShareButtonEl);
+    }
+  } else if (hostButton && zaloShareButtonEl.parentNode !== hostButton) {
+    hostButton.appendChild(zaloShareButtonEl);
+  }
+
+  zaloShareButtonEl.setAttribute('data-href', url);
+  zaloShareButtonEl.setAttribute('data-oaid', '0');
+  zaloShareButtonEl.setAttribute('data-layout', '1');
+  zaloShareButtonEl.setAttribute('data-color', 'blue');
+  zaloShareButtonEl.setAttribute('data-customize', 'true');
+  zaloShareButtonEl.setAttribute('data-share-type', '0');
+  return zaloShareButtonEl;
+}
+
+function loadZaloShareSdk() {
+  if (window.ZaloSocialSDK) {
+    return Promise.resolve(window.ZaloSocialSDK);
+  }
+
+  if (!zaloShareSdkPromise) {
+    zaloShareSdkPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://sp.zalo.me/plugins/sdk.js';
+      script.async = true;
+      script.onload = () => resolve(window.ZaloSocialSDK || null);
+      script.onerror = () => {
+        zaloShareSdkPromise = null;
+        reject(new Error('Zalo SDK load failed'));
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+  return zaloShareSdkPromise;
+}
+
+loadZaloShareSdk().catch(() => {});
+
+function openOfficialZaloShare(url) {
+  const shareButton = ensureZaloShareButton(url);
+  const clickShareButton = () => {
+    if (window.ZaloSocialSDK && typeof window.ZaloSocialSDK.reload === 'function') {
+      window.ZaloSocialSDK.reload();
+    }
+    shareButton.click();
+  };
+
+  if (window.ZaloSocialSDK) {
+    clickShareButton();
+    return;
+  }
+
+  loadZaloShareSdk()
+    .then(() => {
+      clickShareButton();
+    })
+    .catch(() => {
+      showToast('Không mở được Zalo');
+    });
+}
+
 function shareZalo() {
   if (!currentUrl) {
     showToast('Chưa có link thiệp');
     return;
   }
-  const title = encodeURIComponent(`Thiệp mời cưới - ${currentGuest.name}`);
-  const webUrl = `https://zalo.me/share/url?url=${encodeURIComponent(currentUrl)}&title=${title}`;
-  openWebShareTarget(webUrl);
+  openOfficialZaloShare(currentUrl);
 }
 
 function shareMessenger() {
