@@ -492,32 +492,11 @@
   function getMsg() { return ` Kính mời ${currentGuest} đến dự lễ cưới của chúng mình!\n\nXem thiệp tại: ${currentUrl}`; }
 
 function openShareTarget(appUrl, webUrl) {
-  // Prefer the web share page so Messenger/Facebook stay stable on mobile.
-  const popup = window.open(webUrl, '_blank');
-  if (!popup) {
-    window.location.href = webUrl;
-    return;
-  }
-
-  try {
-    popup.opener = null;
-  } catch (error) {
-    // Ignore browsers that disallow touching opener.
-  }
+  window.location.href = webUrl;
 }
 
 function openWebShareTarget(webUrl) {
-  const popup = window.open(webUrl, '_blank');
-  if (!popup) {
-    window.location.href = webUrl;
-    return;
-  }
-
-  try {
-    popup.opener = null;
-  } catch (error) {
-    // Ignore browsers that disallow touching opener.
-  }
+  window.location.href = webUrl;
 }
 
 let zaloShareSdkPromise = null;
