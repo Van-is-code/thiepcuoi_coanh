@@ -515,15 +515,28 @@ function openShareTarget(appUrl, webUrl) {
   }
 }
 
+function openWebShareTarget(webUrl) {
+  const popup = window.open(webUrl, '_blank');
+  if (!popup) {
+    window.location.href = webUrl;
+    return;
+  }
+
+  try {
+    popup.opener = null;
+  } catch (error) {
+    // Ignore cross-browser differences in opener handling.
+  }
+}
+
 function shareZalo() {
   if (!thiepUrl) {
     toast('Chưa có link thiệp');
     return;
   }
-  const msg = encodeURIComponent(getCommonInviteMsg());
   const title = encodeURIComponent('Thiệp mời cưới - Đức Cương & Nguyễn Quyết');
   const webUrl = `https://zalo.me/share/url?url=${encodeURIComponent(thiepUrl)}&title=${title}`;
-  openShareTarget(`zalo://share?text=${msg}`, webUrl);
+  openWebShareTarget(webUrl);
 }
 
 function shareMessenger() {

@@ -666,15 +666,28 @@ function openShareTarget(appUrl, webUrl) {
   }
 }
 
+function openWebShareTarget(webUrl) {
+  const popup = window.open(webUrl, '_blank');
+  if (!popup) {
+    window.location.href = webUrl;
+    return;
+  }
+
+  try {
+    popup.opener = null;
+  } catch (error) {
+    // Ignore browsers that disallow touching opener.
+  }
+}
+
 function shareZalo() {
   if (!currentUrl) {
     showToast('Chưa có link thiệp');
     return;
   }
-  const msg = encodeURIComponent(getMsg());
   const title = encodeURIComponent(`Thiệp mời cưới - ${currentGuest.name}`);
   const webUrl = `https://zalo.me/share/url?url=${encodeURIComponent(currentUrl)}&title=${title}`;
-  openShareTarget(`zalo://share?text=${msg}`, webUrl);
+  openWebShareTarget(webUrl);
 }
 
 function shareMessenger() {
