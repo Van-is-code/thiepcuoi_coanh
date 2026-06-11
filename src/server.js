@@ -100,24 +100,16 @@ app.get(['/xac-nhan', '/xac-nhan/'], (_, res) => {
   res.sendFile(path.join(backendRoot, 'confirm-attendance.html'));
 });
 
-app.get(['/ngoc-anh', '/ngoc-anh/'], (_, res) => {
+app.get(['/duc-cuong', '/duc-cuong/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'vobe2.html'));
 });
 
-app.get(['/ky-niem', '/ky-niem/'], (_, res) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.sendFile(path.join(backendRoot, 'anh_ky_niem.html'));
-});
 
-app.get(['/vanphong-ngocanh', '/vanphong-ngocanh/'], (_, res) => {
+app.get(['/duccuong-nguyenquyet', '/duccuong-nguyenquyet/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'vobe2.html'));
 });
 
-app.get(['/vanphong-ngocanh', '/tranphong-ngocanh/'], (_, res) => {
-  res.sendFile(path.join(staticRoot, 'vobe2.html'));
-});
+
 
 app.get(['/thiep-cuoi', '/thiep-cuoi/'], (_, res) => {
   res.sendFile(path.join(staticRoot, 'phongbibe2.html'));
@@ -632,7 +624,7 @@ app.get('/thiepmoi/:slug', async (req, res, next) => {
       inv: req.params.slug,
     }).toString();
 
-    return res.redirect(`/vanphong-ngocanh?${redirectParams}`);
+    return res.redirect(`/duccuong-nguyenquyet?${redirectParams}`);
   } catch (error) {
     return next(error);
   }

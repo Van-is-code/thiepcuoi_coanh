@@ -344,7 +344,7 @@
             <span class="heart"></span>
             <span class="heart"></span>
           </div>
-          <div class="ty-photo-name">Duy Nam &amp; Vân Anh</div>
+          <div class="ty-photo-name">Đức Cương &amp; Nguyễn Quyết</div>
         </div>
 
         <div class="ty-body">
@@ -369,12 +369,12 @@
           <div class="ty-date">
             <div class="ty-date-block">
               <span class="ty-date-label">Ngày</span>
-              <span class="ty-date-num">18</span>
+              <span class="ty-date-num">20</span>
             </div>
             <div class="ty-date-sep"></div>
             <div class="ty-date-block">
               <span class="ty-date-label">Tháng</span>
-              <span class="ty-date-num">01</span>
+              <span class="ty-date-num">06</span>
             </div>
             <div class="ty-date-sep"></div>
             <div class="ty-date-block">
@@ -382,6 +382,7 @@
               <span class="ty-date-num">2026</span>
             </div>
           </div>
+          
 
           <button class="ty-btn" id="tyCloseBtn">Đóng lại</button>
         </div>

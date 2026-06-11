@@ -440,7 +440,7 @@ body::before {
   <div class="popup">
     <div class="popup-header">
       <button class="btn-close" onclick="closePopup()">✕</button>
-      <div class="popup-rings">💍</div>
+      <div class="popup-rings"></div>
       <h2>Chia sẻ <em>Thiệp</em> Cưới</h2>
       <div class="popup-guest" id="popupGuestName"></div>
     </div>
@@ -474,27 +474,6 @@ body::before {
             <svg width="44" height="44" viewBox="0 0 44 44"><defs><linearGradient id="mg" x1="0" y1="0" x2="44" y2="44"><stop offset="0%" stop-color="#0099ff"/><stop offset="100%" stop-color="#a033ff"/></linearGradient></defs><circle cx="22" cy="22" r="22" fill="url(#mg)"/><path d="M22 7C13.163 7 6 13.71 6 21.95c0 4.594 2.187 8.706 5.623 11.473V37l5.096-2.804c1.358.378 2.797.58 4.281.58 8.837 0 16-6.71 16-14.95C37 13.71 30.837 7 22 7zm1.616 20.137l-4.07-4.346-7.952 4.346 8.741-9.275 4.17 4.347 7.853-4.347-8.742 9.275z" fill="white"/></svg>
           </div>
           <span class="shr-label">Messenger</span>
-        </button>
-
-        <button class="shr" onclick="shareInstagram()" title="Instagram">
-          <div class="shr-circle">
-            <svg width="44" height="44" viewBox="0 0 44 44"><defs><linearGradient id="ig" x1="0" y1="44" x2="44" y2="0"><stop offset="0%" stop-color="#f09433"/><stop offset="40%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><circle cx="22" cy="22" r="22" fill="url(#ig)"/><rect x="11" y="11" width="22" height="22" rx="6" fill="none" stroke="white" stroke-width="1.8"/><circle cx="22" cy="22" r="5.5" fill="none" stroke="white" stroke-width="1.8"/><circle cx="28.5" cy="15.5" r="1.4" fill="white"/></svg>
-          </div>
-          <span class="shr-label">Instagram</span>
-        </button>
-
-        <button class="shr" onclick="shareTikTok()" title="TikTok">
-          <div class="shr-circle" style="background:#010101;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.53V6.79a4.85 4.85 0 01-1.01-.1z"/></svg>
-          </div>
-          <span class="shr-label">TikTok</span>
-        </button>
-
-        <button class="shr" onclick="shareGmail()" title="Gmail">
-          <div class="shr-circle" style="background:white;box-shadow:0 2px 8px rgba(0,0,0,0.18);">
-            <svg width="24" height="18" viewBox="0 0 24 18"><rect width="24" height="18" rx="2" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.8"/><path d="M0 2l12 8 12-8" fill="none" stroke="#ea4335" stroke-width="1.8"/></svg>
-          </div>
-          <span class="shr-label">Gmail</span>
         </button>
 
       </div>
@@ -702,13 +681,6 @@ function shareZalo() {
   setTimeout(() => {
     window.open(webUrl, "_blank");
   }, 500);
-}
-function shareInstagram(){ copyText(currentGuest.url); showToast('Đã copy link! Mở Instagram và dán vào Story 📸'); setTimeout(()=>window.open('https://www.instagram.com/','_blank'),800); }
-function shareTikTok()   { copyText(currentGuest.url); showToast('Đã copy link! Mở TikTok và dán vào bio 🎵'); setTimeout(()=>window.open('https://www.tiktok.com/','_blank'),800); }
-function shareGmail() {
-  const sub = encodeURIComponent(`Thiep Moi Cuoi - Kinh moi ${currentGuest.name}`);
-  const body = encodeURIComponent(`Kinh gui ${currentGuest.name},\n\nChung toi tran trong kinh moi ban den du le cuoi cua chung toi.\n\nXem thiep moi tai:\n${currentGuest.url}\n\nTran trong,\nPhuong Nam & Thu Bich`);
-  window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${sub}&body=${body}`, '_blank');
 }
 
 function copyText(text) {

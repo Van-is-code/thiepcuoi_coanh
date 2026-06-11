@@ -334,7 +334,7 @@
   <div class="popup">
     <div class="popup-header">
       <button class="btn-close" onclick="closePopup()">✕</button>
-      <div class="popup-rings">💍</div>
+      <div class="popup-rings"></div>
       <h2>Chia sẻ <em>Thiệp</em> Cưới</h2>
       <div class="popup-guest" id="popupGuestName"></div>
     </div>
@@ -384,38 +384,8 @@
           <span class="shr-label">Messenger</span>
         </button>
 
-        <button class="shr" onclick="shareInstagram()" title="Instagram">
-          <div class="shr-circle">
-            <svg width="44" height="44" viewBox="0 0 44 44">
-              <defs><linearGradient id="ig" x1="0" y1="44" x2="44" y2="0"><stop offset="0%" stop-color="#f09433"/><stop offset="40%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs>
-              <circle cx="22" cy="22" r="22" fill="url(#ig)"/>
-              <rect x="11" y="11" width="22" height="22" rx="6" fill="none" stroke="white" stroke-width="1.8"/>
-              <circle cx="22" cy="22" r="5.5" fill="none" stroke="white" stroke-width="1.8"/>
-              <circle cx="28.5" cy="15.5" r="1.4" fill="white"/>
-            </svg>
-          </div>
-          <span class="shr-label">Instagram</span>
-        </button>
 
-        <button class="shr" onclick="shareTikTok()" title="TikTok">
-          <div class="shr-circle" style="background:#010101;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-              <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.53V6.79a4.85 4.85 0 01-1.01-.1z"/>
-            </svg>
-          </div>
-          <span class="shr-label">TikTok</span>
-        </button>
-
-        <button class="shr" onclick="shareGmail()" title="Gmail">
-          <div class="shr-circle" style="background:white; box-shadow:0 2px 8px rgba(0,0,0,0.18);">
-            <svg width="24" height="18" viewBox="0 0 24 18">
-              <rect width="24" height="18" rx="2" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.8"/>
-              <path d="M0 2l12 8 12-8" fill="none" stroke="#ea4335" stroke-width="1.8"/>
-            </svg>
-          </div>
-          <span class="shr-label">Gmail</span>
-        </button>
-
+  
       </div>
 
       <div class="divider"><span>Link thiệp</span></div>
@@ -428,43 +398,7 @@
   </div>
 </div>
 
-<!-- Email Input Popup -->
-<div class="overlay" id="emailOverlay" onclick="closeEmailPopup(event)">
-  <div class="popup" style="max-width: 420px;">
-    <div class="popup-header">
-      <button class="btn-close" onclick="closeEmailPopup()">✕</button>
-      <div class="popup-rings">📧</div>
-      <h2>Gửi <em>Email</em> Mời Cưới</h2>
-      <div class="popup-guest" id="emailPopupGuestName"></div>
-    </div>
 
-    <div class="popup-body">
-      <p class="share-title">Nhập email người nhận</p>
-      
-      <div style="margin-bottom: 16px;">
-        <input type="email" id="recipientEmail" placeholder="example@gmail.com" 
-               style="width: 100%; padding: 12px 16px; border: 1px solid rgba(201,169,110,0.4); border-radius: 4px; 
-                      font-size: 14px; font-family: 'Jost', sans-serif; outline: none; transition: border-color 0.3s;"
-               onfocus="this.style.borderColor='#c9a96e'; this.style.boxShadow='0 0 0 3px rgba(201,169,110,0.12)'"
-               onblur="this.style.borderColor='rgba(201,169,110,0.4)'; this.style.boxShadow='none'">
-      </div>
-
-      <button onclick="sendEmailInvitation()" 
-              style="width: 100%; padding: 14px; background: linear-gradient(135deg, #8a6830, #c9a96e); 
-                     color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 500; 
-                     letter-spacing: 2.5px; text-transform: uppercase; cursor: pointer; font-family: 'Jost', sans-serif;
-                     transition: all 0.2s;"
-              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(201,169,110,0.4)'"
-              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-        Gửi Email
-      </button>
-
-      <p style="margin-top: 14px; text-align: center; font-size: 10px; color: #bbb; line-height: 1.6;">
-        Email sẽ được gửi với template thiệp mời HTML đầy đủ
-      </p>
-    </div>
-  </div>
-</div>
 
 <script>
   let currentUrl = '';
@@ -566,7 +500,7 @@
     if (e.target === document.getElementById('overlay')) closePopup();
   }
 
-  function getMsg() { return `💍 Kính mời ${currentGuest} đến dự lễ cưới của chúng mình!\n\nXem thiệp tại: ${currentUrl}`; }
+  function getMsg() { return ` Kính mời ${currentGuest} đến dự lễ cưới của chúng mình!\n\nXem thiệp tại: ${currentUrl}`; }
 
  function shareZalo() {
   const msg = encodeURIComponent(getMsg());
@@ -604,92 +538,7 @@
     window.open(webUrl, "_blank");
   }, 500);
 }
-  function shareInstagram() {
-    copyText(currentUrl);
-    showToast('Đã copy link! Mở Instagram và dán vào Story hoặc Bio nhé 📸');
-    setTimeout(() => window.open('https://www.instagram.com/', '_blank'), 800);
-  }
-  function shareTikTok() {
-    copyText(currentUrl);
-    showToast('Đã copy link! Mở TikTok và dán vào bio hoặc video nhé 🎵');
-    setTimeout(() => window.open('https://www.tiktok.com/', '_blank'), 800);
-  }
-  async function shareGmail() {
-    // Show email input popup
-    document.getElementById('emailPopupGuestName').textContent = '— ' + currentGuest + ' —';
-    document.getElementById('emailOverlay').classList.add('show');
-    document.body.style.overflow = 'hidden';
-    
-    // Focus on email input
-    setTimeout(() => document.getElementById('recipientEmail').focus(), 100);
-  }
-
-  function closeEmailPopup(e) {
-    if (e && e.target !== document.getElementById('emailOverlay')) return;
-    document.getElementById('emailOverlay').classList.remove('show');
-    document.body.style.overflow = '';
-  }
-
-  async function sendEmailInvitation() {
-    const email = document.getElementById('recipientEmail').value.trim();
-    
-    if (!email) {
-      showToast('❌ Vui lòng nhập email');
-      document.getElementById('recipientEmail').focus();
-      return;
-    }
-
-    // Simple email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      showToast('❌ Email không hợp lệ');
-      return;
-    }
-
-    const btn = event.target;
-    const originalText = btn.textContent;
-    btn.textContent = 'Đang gửi...';
-    btn.disabled = true;
-    btn.style.opacity = '0.6';
-    btn.style.cursor = 'not-allowed';
-
-    try {
-      console.log('Gửi email mời tới:', email);
-      
-      const response = await fetch(`${API_BASE}/api/send-invitation-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipient_email: email,
-          guest_name: currentGuest,
-          invitation_url: currentUrl
-        })
-      });
-
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Không thể gửi email' }));
-        console.error('Email error:', error);
-        throw new Error(error.message || 'Không thể gửi email');
-      }
-
-      const data = await response.json();
-      console.log('Email sent successfully:', data);
-      
-      showToast('✓ Email đã gửi thành công!');
-      document.getElementById('recipientEmail').value = '';
-      closeEmailPopup();
-    } catch (error) {
-      console.error('Lỗi gửi email:', error);
-      showToast('❌ ' + (error.message || 'Không thể gửi email. Vui lòng thử lại.'));
-    } finally {
-      btn.textContent = originalText;
-      btn.disabled = false;
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-    }
-  }
+ 
 
   function copyText(text) {
     return new Promise((resolve, reject) => {
@@ -741,6 +590,6 @@
 
   document.getElementById('guestName').addEventListener('keydown', e => { if (e.key === 'Enter') generateLink(); });
 </script>
-<script src="https://thiepcuoi.me/floating-widget.js" defer></script>
+<script src="https://duccuong.thiepcuoi.me/floating-widget.js" defer></script>
 </body>
 </html>
